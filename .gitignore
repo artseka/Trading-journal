@@ -5,6 +5,7 @@ node_modules
 out
 dist
 *.log
+*.tsbuildinfo
 desktop.png
 mobile.png
 .env*

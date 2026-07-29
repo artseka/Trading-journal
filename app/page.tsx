@@ -9,7 +9,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  CloudOff,
+  Cloud,
   Download,
   Edit3,
   LogIn,
@@ -45,6 +45,19 @@ type Trade = {
 type JournalData = {
   trades: Trade[];
   capital: Record<string, number>;
+};
+
+type DatabaseTrade = {
+  id: string;
+  trade_date: string;
+  pair: string;
+  side: Side;
+  result: Result;
+  pnl: number | string;
+  rr: string;
+  strategy: string;
+  note: string;
+  created_at: string;
 };
 
 type TradeDraft = Omit<Trade, "id" | "date" | "createdAt">;
@@ -98,6 +111,21 @@ function safeLoad(): JournalData {
   return { trades: [], capital: {} };
 }
 
+function fromDatabaseTrade(trade: DatabaseTrade): Trade {
+  return {
+    id: trade.id,
+    date: trade.trade_date,
+    pair: trade.pair,
+    side: trade.side,
+    result: trade.result,
+    pnl: Number(trade.pnl) || 0,
+    rr: trade.rr || "",
+    strategy: trade.strategy || "",
+    note: trade.note || "",
+    createdAt: trade.created_at,
+  };
+}
+
 export default function TradingJournal() {
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
   const [loginUsername, setLoginUsername] = useState("");
@@ -126,6 +154,22 @@ export default function TradingJournal() {
     if (authStatus !== "authenticated") return;
     setData(safeLoad());
     setReady(true);
+    fetch("/api/journal", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error();
+        const result = await response.json();
+        const capital = Object.fromEntries(
+          (result.capital || []).map((item: { month_key: string; amount: number | string }) => [
+            item.month_key,
+            Number(item.amount) || 0,
+          ]),
+        );
+        setData({
+          trades: (result.trades || []).map(fromDatabaseTrade),
+          capital,
+        });
+      })
+      .catch(() => setToast("โหลดคลาวด์ไม่สำเร็จ กำลังใช้ข้อมูลสำรองในเครื่อง"));
   }, [authStatus]);
 
   useEffect(() => {
@@ -199,7 +243,7 @@ export default function TradingJournal() {
     setDraft(emptyDraft);
   };
 
-  const saveTrade = (event: FormEvent) => {
+  const saveTrade = async (event: FormEvent) => {
     event.preventDefault();
     if (!selectedDate || !draft.pair.trim()) return;
     const normalized: TradeDraft = {
@@ -211,19 +255,35 @@ export default function TradingJournal() {
     };
 
     if (editingId) {
+      const response = await fetch(`/api/trades/${encodeURIComponent(editingId)}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(normalized),
+      });
+      const result = await response.json();
+      if (!response.ok || !Array.isArray(result) || !result[0]) {
+        window.alert("บันทึกการแก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง");
+        return;
+      }
+      const saved = fromDatabaseTrade(result[0]);
       setData((current) => ({
         ...current,
-        trades: current.trades.map((trade) => trade.id === editingId ? { ...trade, ...normalized } : trade),
+        trades: current.trades.map((trade) => trade.id === editingId ? saved : trade),
       }));
       setToast("แก้ไขรายการเรียบร้อย");
     } else {
-      const trade: Trade = {
-        ...normalized,
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        createdAt: new Date().toISOString(),
-      };
-      setData((current) => ({ ...current, trades: [...current.trades, trade] }));
+      const response = await fetch("/api/trades", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...normalized, date: selectedDate }),
+      });
+      const result = await response.json();
+      if (!response.ok || !Array.isArray(result) || !result[0]) {
+        window.alert("บันทึกเทรดไม่สำเร็จ กรุณาตรวจการเชื่อมต่อแล้วลองอีกครั้ง");
+        return;
+      }
+      const saved = fromDatabaseTrade(result[0]);
+      setData((current) => ({ ...current, trades: [...current.trades, saved] }));
       setToast("บันทึกการเทรดแล้ว");
     }
     setDraft(emptyDraft);
@@ -240,8 +300,13 @@ export default function TradingJournal() {
     setShowForm(true);
   };
 
-  const deleteTrade = (id: string) => {
+  const deleteTrade = async (id: string) => {
     if (!window.confirm("ลบรายการเทรดนี้ใช่หรือไม่?")) return;
+    const response = await fetch(`/api/trades/${encodeURIComponent(id)}`, { method: "DELETE" });
+    if (!response.ok) {
+      window.alert("ลบรายการไม่สำเร็จ กรุณาลองอีกครั้ง");
+      return;
+    }
     setData((current) => ({ ...current, trades: current.trades.filter((trade) => trade.id !== id) }));
     setToast("ลบรายการแล้ว");
   };
@@ -250,12 +315,24 @@ export default function TradingJournal() {
     setViewDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
   };
 
-  const saveCapital = (value: string) => {
+  const updateCapital = (value: string) => {
     const amount = Math.max(0, Number(value) || 0);
     setData((current) => ({
       ...current,
       capital: { ...current.capital, [currentMonthKey]: amount },
     }));
+  };
+
+  const persistCapital = async () => {
+    const response = await fetch("/api/capital", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        monthKey: currentMonthKey,
+        amount: data.capital[currentMonthKey] || 0,
+      }),
+    });
+    setToast(response.ok ? "บันทึกทุนขึ้นคลาวด์แล้ว" : "บันทึกทุนไม่สำเร็จ");
   };
 
   const exportData = () => {
@@ -273,12 +350,31 @@ export default function TradingJournal() {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(String(reader.result));
         if (!Array.isArray(parsed.trades) || typeof parsed.capital !== "object") throw new Error();
+        const response = await fetch("/api/journal", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(parsed),
+        });
+        if (!response.ok) throw new Error();
         setData(parsed);
-        setToast("นำเข้าข้อมูลสำเร็จ");
+        const cloudResponse = await fetch("/api/journal", { cache: "no-store" });
+        if (cloudResponse.ok) {
+          const cloud = await cloudResponse.json();
+          setData({
+            trades: (cloud.trades || []).map(fromDatabaseTrade),
+            capital: Object.fromEntries(
+              (cloud.capital || []).map((item: { month_key: string; amount: number | string }) => [
+                item.month_key,
+                Number(item.amount) || 0,
+              ]),
+            ),
+          });
+        }
+        setToast("นำเข้าข้อมูลขึ้นคลาวด์สำเร็จ");
       } catch {
         window.alert("ไฟล์นี้ไม่ใช่ไฟล์สำรองของ Trading Journal");
       }
@@ -359,7 +455,7 @@ export default function TradingJournal() {
           </div>
         </div>
         <div className="top-actions">
-          <span className="local-status"><CloudOff size={14} /> บันทึกในอุปกรณ์นี้</span>
+          <span className="local-status cloud-status"><Cloud size={14} /> ซิงก์กับ Supabase</span>
           <button className="icon-text-button" onClick={exportData}><Download size={16} /> สำรองข้อมูล</button>
           <button className="icon-text-button logout-button" onClick={logout}><LogOut size={16} /> ออกจากระบบ</button>
           <button className="icon-button mobile-import" onClick={() => importRef.current?.click()} aria-label="นำเข้าข้อมูล"><Upload size={18} /></button>
@@ -412,7 +508,7 @@ export default function TradingJournal() {
             </div>
             <label className="capital-field">
               <span>ทุนเริ่มต้นเดือนนี้</span>
-              <div><b>$</b><input type="number" min="0" value={data.capital[currentMonthKey] ?? ""} placeholder="0" onChange={(e) => saveCapital(e.target.value)} /></div>
+              <div><b>$</b><input type="number" min="0" value={data.capital[currentMonthKey] ?? ""} placeholder="0" onChange={(e) => updateCapital(e.target.value)} onBlur={persistCapital} /></div>
             </label>
           </div>
           <div className="weekday-grid">

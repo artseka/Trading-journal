@@ -76,6 +76,7 @@ button { color: inherit; }
 .eyebrow { margin: 0; color: #8b9691; font: 700 9px/1.5 "Manrope", sans-serif; letter-spacing: 1.5px; }
 .top-actions { gap: 10px; }
 .local-status { gap: 6px; color: #77837e; font-size: 12px; margin-right: 7px; }
+.cloud-status { color: var(--green); }
 .icon-text-button, .icon-button {
   border: 1px solid var(--line);
   background: rgba(255,255,255,.74);
