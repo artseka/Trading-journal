@@ -12,6 +12,9 @@ import {
   CloudOff,
   Download,
   Edit3,
+  LogIn,
+  LogOut,
+  LockKeyhole,
   Plus,
   Search,
   Target,
@@ -96,6 +99,11 @@ function safeLoad(): JournalData {
 }
 
 export default function TradingJournal() {
+  const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginBusy, setLoginBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<JournalData>({ trades: [], capital: {} });
   const [viewDate, setViewDate] = useState(() => new Date());
@@ -108,9 +116,17 @@ export default function TradingJournal() {
   const importRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((result) => setAuthStatus(result.authenticated ? "authenticated" : "unauthenticated"))
+      .catch(() => setAuthStatus("unauthenticated"));
+  }, []);
+
+  useEffect(() => {
+    if (authStatus !== "authenticated") return;
     setData(safeLoad());
     setReady(true);
-  }, []);
+  }, [authStatus]);
 
   useEffect(() => {
     if (!ready) return;
@@ -271,6 +287,65 @@ export default function TradingJournal() {
     reader.readAsText(file);
   };
 
+  const login = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoginBusy(true);
+    setLoginError("");
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username: loginUsername, password: loginPassword }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setLoginError(result.message || "ไม่สามารถเข้าสู่ระบบได้");
+        return;
+      }
+      setLoginPassword("");
+      setAuthStatus("authenticated");
+    } catch {
+      setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+    setReady(false);
+    setAuthStatus("unauthenticated");
+    setLoginPassword("");
+  };
+
+  if (authStatus === "checking") return <div className="loading">กำลังตรวจสอบการเข้าสู่ระบบ…</div>;
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <main className="login-page">
+        <section className="login-card">
+          <div className="login-mark"><TrendingUp size={28} strokeWidth={2.5} /></div>
+          <p className="login-eyebrow">PERSONAL TRADING WORKSPACE</p>
+          <h1>ยินดีต้อนรับกลับ</h1>
+          <p className="login-caption">เข้าสู่ระบบเพื่อเปิด Trading Journal ของคุณ</p>
+          <form onSubmit={login}>
+            <label>
+              <span>Username</span>
+              <input autoComplete="username" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอก Username" />
+            </label>
+            <label>
+              <span>Password</span>
+              <input type="password" autoComplete="current-password" required value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="กรอก Password" />
+            </label>
+            {loginError && <div className="login-error">{loginError}</div>}
+            <button disabled={loginBusy} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
+          </form>
+          <div className="login-security"><LockKeyhole size={13} /> พื้นที่ส่วนตัวสำหรับเจ้าของบัญชีเท่านั้น</div>
+        </section>
+      </main>
+    );
+  }
+
   if (!ready) return <div className="loading">กำลังเปิดสมุดบันทึก…</div>;
 
   return (
@@ -286,6 +361,7 @@ export default function TradingJournal() {
         <div className="top-actions">
           <span className="local-status"><CloudOff size={14} /> บันทึกในอุปกรณ์นี้</span>
           <button className="icon-text-button" onClick={exportData}><Download size={16} /> สำรองข้อมูล</button>
+          <button className="icon-text-button logout-button" onClick={logout}><LogOut size={16} /> ออกจากระบบ</button>
           <button className="icon-button mobile-import" onClick={() => importRef.current?.click()} aria-label="นำเข้าข้อมูล"><Upload size={18} /></button>
           <input ref={importRef} type="file" accept=".json,application/json" hidden onChange={importData} />
         </div>

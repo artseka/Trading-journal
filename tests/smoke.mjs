@@ -8,6 +8,10 @@ const browser = await chromium.launch({
 const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
 const page = await context.newPage();
 await page.goto("http://127.0.0.1:3001", { waitUntil: "networkidle" });
+await page.getByPlaceholder("กรอก Username").fill(process.env.TEST_USERNAME || "test-user");
+await page.getByPlaceholder("กรอก Password").fill(process.env.TEST_PASSWORD || "test-password");
+await page.getByRole("button", { name: "เข้าสู่ระบบ" }).click();
+await page.locator(".day-cell.today").waitFor();
 
 const dimensions = await page.evaluate(() => ({
   viewport: document.documentElement.clientWidth,
