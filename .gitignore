@@ -1,0 +1,10 @@
+node_modules
+.tools
+.next
+.open-next
+out
+*.log
+desktop.png
+mobile.png
+.env*
+!.env.example

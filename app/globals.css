@@ -1,0 +1,248 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap");
+
+:root {
+  --ink: #17211e;
+  --muted: #6d7974;
+  --line: #dfe5e1;
+  --soft-line: #e9eeeb;
+  --paper: #ffffff;
+  --canvas: #f4f6f3;
+  --green: #16835f;
+  --green-dark: #0f6649;
+  --green-soft: #e7f4ee;
+  --red: #d55252;
+  --red-soft: #fcedeb;
+  --amber: #b38221;
+  --navy: #10251f;
+  --shadow: 0 12px 34px rgba(24, 43, 35, 0.07);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--canvas); }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% -10%, rgba(122, 183, 156, 0.10), transparent 30%),
+    var(--canvas);
+  font-family: "IBM Plex Sans Thai", system-ui, sans-serif;
+  min-height: 100vh;
+}
+button, input, select, textarea { font: inherit; }
+button { color: inherit; }
+.loading { min-height: 100vh; display: grid; place-items: center; color: var(--muted); }
+.page-shell { max-width: 1460px; margin: auto; padding: 0 30px 48px; }
+
+.topbar {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(145, 158, 151, 0.22);
+}
+.brand, .top-actions, .brand-mark, .local-status, .icon-text-button { display: flex; align-items: center; }
+.brand { gap: 12px; }
+.brand-mark { width: 43px; height: 43px; justify-content: center; border-radius: 13px; color: white; background: var(--navy); }
+.brand h1 { margin: -2px 0 0; font: 700 19px/1.1 "Manrope", sans-serif; letter-spacing: -0.4px; }
+.eyebrow { margin: 0; color: #8b9691; font: 700 9px/1.5 "Manrope", sans-serif; letter-spacing: 1.5px; }
+.top-actions { gap: 10px; }
+.local-status { gap: 6px; color: #77837e; font-size: 12px; margin-right: 7px; }
+.icon-text-button, .icon-button {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.74);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.icon-text-button { gap: 7px; padding: 8px 12px; font-size: 12px; font-weight: 600; }
+.icon-button { width: 36px; height: 36px; display: none; place-items: center; }
+
+.hero-row { display: flex; align-items: end; justify-content: space-between; padding: 34px 2px 24px; }
+.section-kicker { margin: 0 0 4px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .7px; }
+.hero-row h2 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -.6px; }
+.hero-row h2 span { color: #84908a; font-weight: 500; }
+.hero-caption { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.month-nav { display: flex; gap: 6px; padding-bottom: 2px; }
+.month-nav button { height: 36px; min-width: 36px; padding: 0; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); cursor: pointer; }
+.month-nav .today-button { padding: 0 13px; font-size: 12px; font-weight: 600; }
+
+.stat-grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+.stat-card { min-height: 122px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.88); box-shadow: 0 3px 13px rgba(27,44,37,.025); }
+.stat-card.primary-stat { border-color: #cfe1d9; background: linear-gradient(135deg, #f6fbf8 0%, #fff 70%); }
+.stat-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.stat-card strong { display: block; margin: 10px 0 2px; font: 700 25px/1 "Manrope", sans-serif; letter-spacing: -.8px; }
+.stat-card strong em { font-size: 15px; font-style: normal; }
+.stat-card small { color: #89938e; font-size: 11px; }
+.positive { color: var(--green) !important; }
+.negative { color: var(--red) !important; }
+
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 15px; align-items: start; }
+.calendar-card, .side-panel { border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.94); box-shadow: var(--shadow); }
+.calendar-card { padding: 21px; }
+.calendar-toolbar { min-height: 54px; display: flex; align-items: start; justify-content: space-between; margin-bottom: 12px; }
+.calendar-toolbar h3, .side-heading h3 { margin: 0; font-size: 15px; }
+.calendar-toolbar h3 { display: flex; align-items: center; gap: 8px; }
+.calendar-toolbar h3 svg { color: var(--green); }
+.calendar-toolbar p, .side-heading p { margin: 3px 0 0; color: #939d98; font-size: 11px; }
+.capital-field { display: flex; align-items: center; gap: 9px; }
+.capital-field > span { color: var(--muted); font-size: 11px; }
+.capital-field div { display: flex; align-items: center; width: 112px; border: 1px solid var(--line); border-radius: 8px; background: #fafbf9; }
+.capital-field b { padding-left: 9px; color: #89938e; font-size: 12px; }
+.capital-field input { width: 100%; padding: 7px 8px 7px 4px; border: 0; outline: 0; text-align: right; background: transparent; font: 600 12px "Manrope", sans-serif; }
+
+.weekday-grid, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.weekday-grid { margin-bottom: 5px; }
+.weekday-grid div { padding: 5px; text-align: center; color: #818d87; font-size: 10px; font-weight: 700; }
+.weekday-grid .weekend-label { color: #c47a77; }
+.day-cell {
+  position: relative;
+  min-height: 94px;
+  padding: 8px;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid var(--soft-line);
+  border-radius: 9px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.day-cell:hover { z-index: 1; transform: translateY(-2px); border-color: #bcd4c9; box-shadow: 0 8px 20px rgba(23,64,47,.08); }
+.day-cell.blank { border-color: transparent; background: #fbfcfb; pointer-events: none; }
+.day-cell.weekend { background: #fffafa; }
+.day-cell.today { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+.day-head { display: flex; align-items: center; justify-content: space-between; }
+.day-head > span { font: 700 12px "Manrope", sans-serif; }
+.day-head i { min-width: 18px; height: 18px; display: grid; place-items: center; color: var(--green-dark); border-radius: 6px; background: var(--green-soft); font: 700 9px "Manrope", sans-serif; font-style: normal; }
+.day-cell > b { display: block; margin-top: 12px; font: 700 12px "Manrope", sans-serif; white-space: nowrap; }
+.result-dots { display: flex; gap: 3px; margin-top: 8px; }
+.result-dots i { width: 5px; height: 5px; border-radius: 50%; background: #b8c1bd; }
+.result-dots i.win { background: #47a984; }
+.result-dots i.loss { background: #df7571; }
+.result-dots i.breakeven { background: #d5a94e; }
+.add-hint { width: 23px; height: 23px; display: grid; place-items: center; margin: 14px auto 0; color: #cad1cd; border: 1px dashed #d5dbd7; border-radius: 50%; opacity: 0; transition: opacity .15s; }
+.day-cell:hover .add-hint { opacity: 1; }
+.filtered-mark { position: absolute; inset: auto 5px 5px; color: #a0a8a4; font-size: 7px; text-align: center; }
+
+.side-panel { padding: 14px; }
+.search-box { height: 38px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: #fafbf9; }
+.search-box svg { color: #909a95; flex: 0 0 auto; }
+.search-box input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 11px; }
+.search-box button { display: grid; place-items: center; padding: 2px; border: 0; background: transparent; cursor: pointer; }
+.side-heading { display: flex; justify-content: space-between; padding: 18px 3px 9px; }
+.recent-list { min-height: 328px; }
+.recent-item { width: 100%; display: flex; align-items: center; gap: 9px; padding: 10px 4px; border: 0; border-bottom: 1px solid #edf0ee; background: transparent; cursor: pointer; text-align: left; }
+.recent-item:hover { background: #fafcfb; }
+.side-icon { width: 30px; height: 30px; display: grid; flex: 0 0 auto; place-items: center; border-radius: 8px; }
+.side-icon.buy { color: var(--green); background: var(--green-soft); }
+.side-icon.sell { color: var(--red); background: var(--red-soft); }
+.recent-main { min-width: 0; flex: 1; }
+.recent-main b, .recent-main small { display: block; }
+.recent-main b { font: 700 11px "Manrope", sans-serif; }
+.recent-main small { margin-top: 2px; color: #8c9691; font-size: 9px; }
+.recent-item > strong { font: 700 10px "Manrope", sans-serif; white-space: nowrap; }
+.empty-list { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aab2ae; text-align: center; }
+.empty-list p { margin: 10px 0 2px; color: #6f7b75; font-size: 12px; font-weight: 600; }
+.empty-list span { font-size: 10px; }
+.backup-card { margin-top: 10px; padding: 12px; border-radius: 10px; background: #f2f6f3; }
+.backup-card > div:first-child { display: flex; align-items: center; gap: 8px; }
+.backup-card svg { color: var(--green); }
+.backup-card span b, .backup-card span small { display: block; }
+.backup-card span b { font-size: 10px; }
+.backup-card span small { color: #89938e; font-size: 8px; }
+.backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 9px; }
+.backup-actions button { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 6px; border: 1px solid #d8e1dc; border-radius: 7px; background: white; color: #4d5c55; font-size: 9px; font-weight: 600; cursor: pointer; }
+
+.modal-backdrop { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(9, 25, 19, .58); backdrop-filter: blur(5px); }
+.trade-modal { width: min(590px, 100%); max-height: min(780px, 90vh); overflow: auto; border-radius: 18px; background: white; box-shadow: 0 30px 80px rgba(0,0,0,.26); }
+.modal-header { position: sticky; z-index: 2; top: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--soft-line); background: white; }
+.modal-header p { margin: 0; color: var(--green); font-size: 10px; font-weight: 700; }
+.modal-header h3 { margin: 2px 0 0; font-size: 18px; }
+.modal-header button { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: white; cursor: pointer; }
+.trade-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 21px 22px; }
+.field.full { grid-column: 1 / -1; }
+.field label { display: block; margin-bottom: 5px; color: #53625b; font-size: 11px; font-weight: 600; }
+.field label sup { color: var(--red); }
+.field input, .field select, .field textarea { width: 100%; padding: 10px 11px; border: 1px solid var(--line); border-radius: 9px; outline: 0; background: #fcfdfc; color: var(--ink); font-size: 12px; }
+.field textarea { resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,131,95,.09); }
+.segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: #f5f7f5; }
+.segmented button { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 6px; border: 0; border-radius: 6px; background: transparent; color: #7c8782; font-size: 11px; cursor: pointer; }
+.segmented button.active { background: white; box-shadow: 0 1px 4px rgba(0,0,0,.08); font-weight: 700; }
+.segmented button.active.buy { color: var(--green); }
+.segmented button.active.sell { color: var(--red); }
+.form-footer { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.form-footer button, .add-trade-button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 15px; border-radius: 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.form-footer .secondary { border: 1px solid var(--line); background: white; }
+.save-button, .add-trade-button { border: 0; background: var(--green); color: white; }
+.day-trades { padding: 18px 22px 22px; }
+.day-summary { display: flex; justify-content: space-between; padding: 0 3px 12px; color: var(--muted); font-size: 11px; }
+.day-summary strong { font: 700 13px "Manrope", sans-serif; }
+.trade-row { display: flex; gap: 10px; padding: 13px 2px; border-top: 1px solid var(--soft-line); }
+.trade-direction { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 9px; }
+.trade-direction.buy { color: var(--green); background: var(--green-soft); }
+.trade-direction.sell { color: var(--red); background: var(--red-soft); }
+.trade-details { min-width: 0; flex: 1; }
+.trade-details > div { display: flex; align-items: center; gap: 6px; }
+.trade-details h4 { margin: 0; font: 700 12px "Manrope", sans-serif; }
+.result-pill { padding: 2px 6px; border-radius: 5px; font: 700 8px "Manrope", sans-serif; }
+.result-pill.win { color: var(--green-dark); background: var(--green-soft); }
+.result-pill.loss { color: #a93f3f; background: var(--red-soft); }
+.result-pill.breakeven { color: #8f691e; background: #fbf1d8; }
+.trade-details p { margin: 4px 0 0; color: #728079; font-size: 10px; }
+.trade-details small { display: block; margin-top: 4px; color: #9aa39f; font-size: 9px; line-height: 1.45; }
+.trade-result { flex: 0 0 auto; text-align: right; }
+.trade-result > strong { font: 700 12px "Manrope", sans-serif; }
+.trade-result > div { display: flex; justify-content: flex-end; gap: 3px; margin-top: 7px; }
+.trade-result button { width: 25px; height: 25px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: white; color: #718078; cursor: pointer; }
+.trade-result button.delete { color: var(--red); }
+.add-trade-button { width: 100%; margin-top: 14px; }
+.modal-empty { padding: 30px; color: #99a39e; text-align: center; font-size: 12px; }
+.toast { position: fixed; z-index: 70; left: 50%; bottom: 24px; display: flex; align-items: center; gap: 7px; transform: translateX(-50%); padding: 10px 15px; border-radius: 10px; background: var(--navy); color: white; box-shadow: 0 12px 30px rgba(0,0,0,.22); font-size: 11px; }
+
+@media (max-width: 1000px) {
+  .page-shell { padding-inline: 18px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .workspace { grid-template-columns: 1fr; }
+  .side-panel { display: none; }
+  .day-cell { min-height: 88px; }
+}
+
+@media (max-width: 620px) {
+  .page-shell { padding: 0 10px 30px; }
+  .topbar { height: 68px; }
+  .brand-mark { width: 38px; height: 38px; }
+  .brand h1 { font-size: 16px; }
+  .eyebrow, .local-status, .icon-text-button { display: none; }
+  .mobile-import { display: grid; }
+  .hero-row { align-items: center; padding: 24px 2px 18px; }
+  .section-kicker, .hero-caption { display: none; }
+  .hero-row h2 { font-size: 21px; }
+  .month-nav button { height: 33px; min-width: 33px; }
+  .month-nav .today-button { display: none; }
+  .stat-grid { gap: 7px; margin-bottom: 9px; }
+  .stat-card { min-height: 95px; padding: 13px; border-radius: 11px; }
+  .stat-card strong { margin-top: 8px; font-size: 18px; }
+  .stat-card small { font-size: 9px; }
+  .stat-label { font-size: 10px; }
+  .stat-label svg { width: 14px; height: 14px; }
+  .calendar-card { padding: 10px 7px 9px; border-radius: 13px; }
+  .calendar-toolbar { align-items: center; min-height: 46px; margin: 0 3px 5px; }
+  .calendar-toolbar h3 { font-size: 13px; }
+  .calendar-toolbar p, .capital-field > span { display: none; }
+  .capital-field div { width: 90px; }
+  .weekday-grid, .calendar-grid { gap: 3px; }
+  .weekday-grid div { padding: 4px 2px; font-size: 9px; }
+  .day-cell { min-height: 67px; padding: 5px; border-radius: 7px; }
+  .day-head > span { font-size: 10px; }
+  .day-head i { min-width: 15px; height: 15px; border-radius: 5px; font-size: 7px; }
+  .day-cell > b { margin-top: 8px; font-size: 8px; letter-spacing: -.3px; }
+  .result-dots { margin-top: 7px; }
+  .add-hint { width: 19px; height: 19px; margin-top: 9px; opacity: .6; }
+  .trade-modal { max-height: 92vh; border-radius: 16px; }
+  .modal-backdrop { align-items: end; padding: 8px; }
+  .modal-header { padding: 16px; }
+  .trade-form { grid-template-columns: 1fr; gap: 11px; padding: 16px; }
+  .field.full, .form-footer { grid-column: auto; }
+  .form-footer { position: sticky; bottom: -16px; margin: 4px -16px -16px; padding: 12px 16px; background: white; border-top: 1px solid var(--soft-line); }
+  .form-footer button { flex: 1; }
+  .day-trades { padding: 14px 16px 16px; }
+}
