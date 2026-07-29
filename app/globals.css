@@ -122,9 +122,9 @@ button { color: inherit; }
 .calendar-toolbar p, .side-heading p { margin: 3px 0 0; color: #939d98; font-size: 11px; }
 .capital-field { display: flex; align-items: center; gap: 9px; }
 .capital-field > span { color: var(--muted); font-size: 11px; }
-.capital-field div { display: flex; align-items: center; width: 112px; border: 1px solid var(--line); border-radius: 9px; background: #f8fafc; }
-.capital-field b { padding-left: 9px; color: #89938e; font-size: 12px; }
-.capital-field input { width: 100%; padding: 7px 8px 7px 4px; border: 0; outline: 0; text-align: right; background: transparent; font: 600 12px "Manrope", sans-serif; }
+.capital-field div { display: flex; align-items: center; width: 88px; border: 1px solid var(--line); border-radius: 8px; background: #f8fafc; }
+.capital-field b { padding-left: 7px; color: #89938e; font-size: 11px; }
+.capital-field input { min-width: 0; width: 100%; padding: 5px 5px 5px 3px; border: 0; outline: 0; text-align: right; background: transparent; font: 600 11px "Manrope", sans-serif; }
 
 .weekday-grid, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
 .weekday-grid { margin-bottom: 5px; }
@@ -287,7 +287,7 @@ button { color: inherit; }
   .calendar-toolbar { align-items: center; min-height: 46px; margin: 0 3px 5px; }
   .calendar-toolbar h3 { font-size: 13px; }
   .calendar-toolbar p, .capital-field > span { display: none; }
-  .capital-field div { width: 90px; }
+  .capital-field div { width: 72px; }
   .weekday-grid, .calendar-grid { gap: 3px; }
   .weekday-grid div { padding: 4px 2px; font-size: 9px; }
   .day-cell { min-height: 67px; padding: 5px; border-radius: 7px; }
