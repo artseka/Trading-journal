@@ -599,8 +599,8 @@ export default function TradingJournal() {
                 <div className="field">
                   <label>ประเภท</label>
                   <div className="segmented">
-                    <button type="button" className={draft.side === "buy" ? "active buy" : ""} onClick={() => setDraft({ ...draft, side: "buy" })}><ArrowUpRight size={15} /> Buy</button>
-                    <button type="button" className={draft.side === "sell" ? "active sell" : ""} onClick={() => setDraft({ ...draft, side: "sell" })}><ArrowDownRight size={15} /> Sell</button>
+                    <button type="button" className={`buy ${draft.side === "buy" ? "active" : ""}`} onClick={() => setDraft({ ...draft, side: "buy" })}><ArrowUpRight size={15} /> Buy</button>
+                    <button type="button" className={`sell ${draft.side === "sell" ? "active" : ""}`} onClick={() => setDraft({ ...draft, side: "sell" })}><ArrowDownRight size={15} /> Sell</button>
                   </div>
                 </div>
                 <div className="field">
