@@ -9,3 +9,5 @@ desktop.png
 mobile.png
 .env*
 !.env.example
+.vinext/
+.wrangler/

@@ -1,27 +1,4 @@
 import { chromium } from "playwright-core";
-import { createReadStream, existsSync, statSync } from "node:fs";
-import { createServer } from "node:http";
-import { extname, join, normalize } from "node:path";
-
-const mime = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".json": "application/json; charset=utf-8",
-  ".webmanifest": "application/manifest+json; charset=utf-8",
-};
-
-const server = createServer((request, response) => {
-  const pathname = decodeURIComponent(new URL(request.url || "/", "http://localhost").pathname);
-  const relative = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
-  const requested = normalize(join(process.cwd(), "dist", relative));
-  const file = requested.startsWith(join(process.cwd(), "dist")) && existsSync(requested) && statSync(requested).isFile()
-    ? requested
-    : join(process.cwd(), "dist", "404.html");
-  response.setHeader("content-type", mime[extname(file)] || "application/octet-stream");
-  createReadStream(file).pipe(response);
-});
-await new Promise((resolve) => server.listen(3001, "127.0.0.1", resolve));
 
 const browser = await chromium.launch({
   executablePath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
@@ -61,4 +38,3 @@ await page.getByText("แก้ไขรายการเรียบร้อ�
 
 console.log(JSON.stringify({ ok: true, dimensions, persistedPair: stored.trades[0].pair }));
 await browser.close();
-await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
