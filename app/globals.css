@@ -157,23 +157,23 @@ button { color: inherit; }
 .result-dots i.loss { background: #ff7077; }
 .result-dots i.breakeven { background: #d5a94e; }
 .add-hint {
-  width: 30px;
-  height: 30px;
+  width: 23px;
+  height: 23px;
   display: grid;
   place-items: center;
-  margin: 12px auto 0;
+  margin: 14px auto 0;
   color: white;
   border: 0;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 5px 12px rgba(5, 155, 115, .24);
+  box-shadow: 0 3px 8px rgba(5, 155, 115, .20);
   opacity: 1;
   transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
 }
 .day-cell:hover .add-hint {
   transform: scale(1.08);
   background: var(--green-dark);
-  box-shadow: 0 7px 16px rgba(5, 155, 115, .32);
+  box-shadow: 0 4px 10px rgba(5, 155, 115, .28);
 }
 .filtered-mark { position: absolute; inset: auto 5px 5px; color: #a0a8a4; font-size: 7px; text-align: center; }
 
@@ -292,8 +292,8 @@ button { color: inherit; }
   .day-head i { min-width: 15px; height: 15px; border-radius: 5px; font-size: 7px; }
   .day-cell > b { margin-top: 8px; font-size: 8px; letter-spacing: -.3px; }
   .result-dots { margin-top: 7px; }
-  .add-hint { width: 24px; height: 24px; margin-top: 8px; }
-  .add-hint svg { width: 15px; height: 15px; stroke-width: 2.5; }
+  .add-hint { width: 19px; height: 19px; margin-top: 9px; }
+  .add-hint svg { width: 13px; height: 13px; stroke-width: 2.5; }
   .trade-modal { max-height: 92vh; border-radius: 16px; }
   .modal-backdrop { align-items: end; padding: 8px; }
   .modal-header { padding: 16px; }
