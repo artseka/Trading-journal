@@ -293,8 +293,8 @@ button { color: inherit; }
   .day-head i { min-width: 15px; height: 15px; border-radius: 5px; font-size: 7px; }
   .day-cell > b { margin-top: 8px; font-size: 8px; letter-spacing: -.3px; }
   .result-dots { margin-top: 7px; }
-  .add-hint { width: 16px; height: 16px; margin-top: 10px; }
-  .add-hint svg { width: 11px; height: 11px; }
+  .add-hint { width: 13px; height: 13px; margin-top: 11px; box-shadow: 0 2px 5px rgba(5, 155, 115, .18); }
+  .add-hint svg { width: 9px; height: 9px; stroke-width: 2.25; }
   .trade-modal { max-height: 92vh; border-radius: 16px; }
   .modal-backdrop { align-items: end; padding: 8px; }
   .modal-header { padding: 16px; }
