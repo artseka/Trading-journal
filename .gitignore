@@ -12,3 +12,5 @@ mobile.png
 !.env.example
 .vinext/
 .wrangler/
+
+.vercel
