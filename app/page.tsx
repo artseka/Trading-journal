@@ -536,9 +536,9 @@ export default function TradingJournal() {
                         {allDayTrades.slice(0, 5).map((trade) => <i className={trade.result} key={trade.id} />)}
                       </div>
                     </>
-                  ) : (
+                  ) : !weekend ? (
                     <span className="add-hint"><Plus size={15} /></span>
-                  )}
+                  ) : null}
                   {query && dayTrades.length === 0 && allDayTrades.length > 0 && <span className="filtered-mark">ไม่ตรงตัวกรอง</span>}
                 </button>
               );

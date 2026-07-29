@@ -157,11 +157,11 @@ button { color: inherit; }
 .result-dots i.loss { background: #ff7077; }
 .result-dots i.breakeven { background: #d5a94e; }
 .add-hint {
-  width: 23px;
-  height: 23px;
+  width: 18px;
+  height: 18px;
   display: grid;
   place-items: center;
-  margin: 14px auto 0;
+  margin: 16px auto 0;
   color: white;
   border: 0;
   border-radius: 50%;
@@ -170,6 +170,7 @@ button { color: inherit; }
   opacity: 1;
   transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
 }
+.add-hint svg { width: 12px; height: 12px; stroke-width: 2.5; }
 .day-cell:hover .add-hint {
   transform: scale(1.08);
   background: var(--green-dark);
@@ -292,8 +293,8 @@ button { color: inherit; }
   .day-head i { min-width: 15px; height: 15px; border-radius: 5px; font-size: 7px; }
   .day-cell > b { margin-top: 8px; font-size: 8px; letter-spacing: -.3px; }
   .result-dots { margin-top: 7px; }
-  .add-hint { width: 19px; height: 19px; margin-top: 9px; }
-  .add-hint svg { width: 13px; height: 13px; stroke-width: 2.5; }
+  .add-hint { width: 16px; height: 16px; margin-top: 10px; }
+  .add-hint svg { width: 11px; height: 11px; }
   .trade-modal { max-height: 92vh; border-radius: 16px; }
   .modal-backdrop { align-items: end; padding: 8px; }
   .modal-header { padding: 16px; }
