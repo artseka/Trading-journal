@@ -3,6 +3,7 @@ node_modules
 .next
 .open-next
 out
+dist
 *.log
 desktop.png
 mobile.png
