@@ -60,7 +60,9 @@ type DatabaseTrade = {
   created_at: string;
 };
 
-type TradeDraft = Omit<Trade, "id" | "date" | "createdAt">;
+type TradeDraft = Omit<Trade, "id" | "date" | "createdAt" | "pnl"> & {
+  pnl: number | "";
+};
 
 const STORAGE_KEY = "trading-journal-v1";
 const monthNames = [
@@ -72,7 +74,7 @@ const emptyDraft: TradeDraft = {
   pair: "",
   side: "buy",
   result: "win",
-  pnl: 0,
+  pnl: "",
   rr: "",
   strategy: "",
   note: "",
@@ -594,7 +596,14 @@ export default function TradingJournal() {
               <form className="trade-form" onSubmit={saveTrade}>
                 <div className="field full">
                   <label>คู่เงิน / สินทรัพย์ <sup>*</sup></label>
-                  <input autoFocus required value={draft.pair} onChange={(e) => setDraft({ ...draft, pair: e.target.value })} placeholder="เช่น XAU/USD, BTC/USDT" />
+                  <input autoFocus required list="trading-symbols" value={draft.pair} onChange={(e) => setDraft({ ...draft, pair: e.target.value })} placeholder="พิมพ์หรือเลือกคู่เงิน" />
+                  <datalist id="trading-symbols">
+                    <option value="XAUUSD" />
+                    <option value="JPYUSD" />
+                    <option value="BTCUSD" />
+                    <option value="GBPUSD" />
+                    <option value="EURUSD" />
+                  </datalist>
                 </div>
                 <div className="field">
                   <label>ประเภท</label>
@@ -613,7 +622,7 @@ export default function TradingJournal() {
                 </div>
                 <div className="field">
                   <label>กำไร / ขาดทุน ($)</label>
-                  <input type="number" step="0.01" value={draft.pnl} onChange={(e) => setDraft({ ...draft, pnl: Number(e.target.value) })} />
+                  <input type="number" step="0.01" value={draft.pnl} onChange={(e) => setDraft({ ...draft, pnl: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="กรอกกำไร หรือใส่ - หน้าตัวเลขเมื่อขาดทุน" />
                 </div>
                 <div className="field">
                   <label>RR Ratio</label>
