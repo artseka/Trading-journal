@@ -91,6 +91,13 @@ function monthKey(date: Date) {
   return dateKey(date).slice(0, 7);
 }
 
+function pnlForResult(value: number | "", result: Result): number | "" {
+  if (value === "") return "";
+  if (result === "loss") return -Math.abs(value);
+  if (result === "win") return Math.abs(value);
+  return value;
+}
+
 function money(value: number, sign = false) {
   const prefix = sign && value > 0 ? "+" : "";
   return `${prefix}${new Intl.NumberFormat("en-US", {
@@ -253,7 +260,7 @@ export default function TradingJournal() {
       pair: draft.pair.trim().toUpperCase(),
       strategy: draft.strategy.trim(),
       note: draft.note.trim(),
-      pnl: Number(draft.pnl) || 0,
+      pnl: Number(pnlForResult(draft.pnl, draft.result)) || 0,
     };
 
     if (editingId) {
@@ -614,7 +621,10 @@ export default function TradingJournal() {
                 </div>
                 <div className="field">
                   <label>ผลลัพธ์</label>
-                  <select value={draft.result} onChange={(e) => setDraft({ ...draft, result: e.target.value as Result })}>
+                  <select value={draft.result} onChange={(e) => {
+                    const result = e.target.value as Result;
+                    setDraft({ ...draft, result, pnl: pnlForResult(draft.pnl, result) });
+                  }}>
                     <option value="win">Win</option>
                     <option value="loss">Loss</option>
                     <option value="breakeven">Breakeven</option>
@@ -622,7 +632,16 @@ export default function TradingJournal() {
                 </div>
                 <div className="field">
                   <label>กำไร / ขาดทุน ($)</label>
-                  <input type="number" step="0.01" value={draft.pnl} onChange={(e) => setDraft({ ...draft, pnl: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="กรอกกำไร หรือใส่ - หน้าตัวเลขเมื่อขาดทุน" />
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={draft.pnl}
+                    onChange={(e) => {
+                      const value = e.target.value === "" ? "" : Number(e.target.value);
+                      setDraft({ ...draft, pnl: pnlForResult(value, draft.result) });
+                    }}
+                    placeholder={draft.result === "loss" ? "กรอกจำนวนขาดทุน ระบบใส่เครื่องหมายลบให้" : "กรอกจำนวนกำไร"}
+                  />
                 </div>
                 <div className="field">
                   <label>RR Ratio</label>
