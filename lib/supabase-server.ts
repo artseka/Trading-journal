@@ -39,6 +39,16 @@ export async function getSupabaseUser(accessToken?: string): Promise<SupabaseUse
   return { id: user.id, email: typeof user.email === "string" ? user.email : undefined };
 }
 
+export async function getSupabaseUsername(accessToken: string, userId: string): Promise<string> {
+  const response = await supabaseRequest(
+    `/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=username&limit=1`,
+    accessToken,
+  );
+  if (!response.ok) return "";
+  const profiles = await response.json().catch(() => []);
+  return Array.isArray(profiles) && typeof profiles[0]?.username === "string" ? profiles[0].username : "";
+}
+
 export type SupabaseSession = {
   access_token: string;
   refresh_token: string;

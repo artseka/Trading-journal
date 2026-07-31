@@ -9,7 +9,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Cloud,
   Download,
   Edit3,
   LogIn,
@@ -150,6 +149,7 @@ function fromDatabaseTrade(trade: DatabaseTrade): Trade {
 export default function TradingJournal() {
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
   const [accountId, setAccountId] = useState("");
+  const [accountUsername, setAccountUsername] = useState("");
   const [authMode, setAuthMode] = useState<"login" | "register" | "forgot">("login");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -242,6 +242,7 @@ export default function TradingJournal() {
       .then((response) => response.json())
       .then((result) => {
         setAccountId(result.authenticated && typeof result.userId === "string" ? result.userId : "");
+        setAccountUsername(result.authenticated && typeof result.username === "string" ? result.username : "");
         setPasswordRecovery(Boolean(result.authenticated && isRecoveryLink));
         setAuthStatus(result.authenticated ? "authenticated" : "unauthenticated");
       })
@@ -509,6 +510,7 @@ export default function TradingJournal() {
       }
       setLoginPassword("");
       setAccountId(session.userId);
+      setAccountUsername(typeof session.username === "string" ? session.username : "");
       setAuthStatus("authenticated");
     } catch {
       setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
@@ -625,6 +627,7 @@ export default function TradingJournal() {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     setReady(false);
     setAccountId("");
+    setAccountUsername("");
     setData({ trades: [], capital: {} });
     setAuthStatus("unauthenticated");
     setLoginPassword("");
@@ -768,7 +771,7 @@ export default function TradingJournal() {
           </div>
         </div>
         <div className="top-actions">
-          <span className="local-status cloud-status"><Cloud size={14} /> ซิงก์กับ Supabase</span>
+          <span className="user-greeting">สวัสดีครับ คุณ{accountUsername || "ผู้ใช้งาน"}</span>
           <button className="icon-text-button" onClick={exportData}><Download size={16} /> สำรองข้อมูล</button>
           <button className="icon-text-button logout-button" onClick={logout}><LogOut size={16} /> ออกจากระบบ</button>
           <button className="icon-button mobile-import" onClick={() => importRef.current?.click()} aria-label="นำเข้าข้อมูล"><Upload size={18} /></button>

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import {
   authCookies,
   getSupabaseUser,
+  getSupabaseUsername,
   refreshSupabaseSession,
   setSessionCookies,
 } from "../../../../lib/supabase-server";
@@ -12,7 +13,8 @@ export async function GET() {
   const accessToken = cookieStore.get(authCookies.access)?.value;
   const currentUser = await getSupabaseUser(accessToken);
   if (currentUser) {
-    return NextResponse.json({ authenticated: true, userId: currentUser.id, email: currentUser.email });
+    const username = await getSupabaseUsername(accessToken!, currentUser.id);
+    return NextResponse.json({ authenticated: true, userId: currentUser.id, email: currentUser.email, username });
   }
 
   const refreshToken = cookieStore.get(authCookies.refresh)?.value;
@@ -22,7 +24,8 @@ export async function GET() {
 
   const refreshedUser = await getSupabaseUser(session.access_token);
   if (!refreshedUser) return NextResponse.json({ authenticated: false });
-  const response = NextResponse.json({ authenticated: true, userId: refreshedUser.id, email: refreshedUser.email });
+  const username = await getSupabaseUsername(session.access_token, refreshedUser.id);
+  const response = NextResponse.json({ authenticated: true, userId: refreshedUser.id, email: refreshedUser.email, username });
   setSessionCookies(response, session);
   return response;
 }
@@ -39,7 +42,8 @@ export async function POST(request: Request) {
     if (!user || !session.refresh_token) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
-    const response = NextResponse.json({ authenticated: true, userId: user.id, email: user.email });
+    const username = await getSupabaseUsername(session.access_token, user.id);
+    const response = NextResponse.json({ authenticated: true, userId: user.id, email: user.email, username });
     setSessionCookies(response, session);
     return response;
   } catch {

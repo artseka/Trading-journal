@@ -95,6 +95,7 @@ button { color: inherit; }
 .eyebrow { margin: 0; color: #91a0b7; font: 700 9px/1.5 "Manrope", sans-serif; letter-spacing: 1.5px; }
 .top-actions { gap: 10px; }
 .local-status { gap: 6px; color: #a9b5c7; font-size: 12px; margin-right: 7px; }
+.user-greeting { max-width: 210px; overflow: hidden; color: #68dbb9; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .cloud-status { color: #5ee0b4; }
 .icon-text-button, .icon-button {
   border: 1px solid rgba(255,255,255,.12);
@@ -284,6 +285,7 @@ button { color: inherit; }
   .brand-mark { width: 38px; height: 38px; }
   .brand h1 { font-size: 16px; }
   .eyebrow, .local-status, .icon-text-button { display: none; }
+  .user-greeting { max-width: 125px; font-size: 10px; }
   .login-card { padding: 27px 22px; }
   .mobile-import { display: grid; }
   .hero-row { align-items: center; padding: 9px 16px 20px; margin-bottom: 12px; }
