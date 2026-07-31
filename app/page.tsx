@@ -150,7 +150,7 @@ function fromDatabaseTrade(trade: DatabaseTrade): Trade {
 export default function TradingJournal() {
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
   const [accountId, setAccountId] = useState("");
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authMode, setAuthMode] = useState<"login" | "register" | "forgot">("login");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -160,6 +160,11 @@ export default function TradingJournal() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfirm, setRegisterConfirm] = useState("");
   const [registerMessage, setRegisterMessage] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotMessage, setForgotMessage] = useState("");
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaError, setCaptchaError] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
@@ -185,7 +190,7 @@ export default function TradingJournal() {
       theme: "light",
       size: "flexible",
       language: "th",
-      action: authMode === "register" ? "signup" : "login",
+      action: authMode === "register" ? "signup" : authMode === "forgot" ? "forgot_password" : "login",
       "offlabel-show-help": false,
       callback: (token: string) => {
         setCaptchaError("");
@@ -221,6 +226,7 @@ export default function TradingJournal() {
     const hash = new URLSearchParams(window.location.hash.slice(1));
     const accessToken = hash.get("access_token");
     const refreshToken = hash.get("refresh_token");
+    const isRecoveryLink = hash.get("type") === "recovery";
     const sessionRequest = accessToken && refreshToken
       ? fetch("/api/auth/session", {
           method: "POST",
@@ -236,6 +242,7 @@ export default function TradingJournal() {
       .then((response) => response.json())
       .then((result) => {
         setAccountId(result.authenticated && typeof result.userId === "string" ? result.userId : "");
+        setPasswordRecovery(Boolean(result.authenticated && isRecoveryLink));
         setAuthStatus(result.authenticated ? "authenticated" : "unauthenticated");
       })
       .catch(() => setAuthStatus("unauthenticated"));
@@ -552,6 +559,68 @@ export default function TradingJournal() {
     }
   };
 
+  const requestPasswordReset = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoginError("");
+    setForgotMessage("");
+    if (!captchaToken) {
+      setLoginError("กรุณารอให้ระบบตรวจสอบความปลอดภัยให้เรียบร้อย");
+      return;
+    }
+
+    setLoginBusy(true);
+    try {
+      const response = await fetch("/api/auth/recover", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail, captchaToken }),
+      });
+      const result = await response.json();
+      resetCaptcha();
+      if (!response.ok) {
+        setLoginError(result.message || "ไม่สามารถส่งอีเมลได้ กรุณาลองอีกครั้ง");
+        return;
+      }
+      setForgotMessage(result.message || "กรุณาตรวจสอบอีเมลของคุณ");
+    } catch {
+      setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
+      resetCaptcha();
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
+  const updatePassword = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoginError("");
+    if (newPassword !== newPasswordConfirm) {
+      setLoginError("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
+      return;
+    }
+
+    setLoginBusy(true);
+    try {
+      const response = await fetch("/api/auth/update-password", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setLoginError(result.message || "ไม่สามารถตั้งรหัสผ่านใหม่ได้");
+        return;
+      }
+      setNewPassword("");
+      setNewPasswordConfirm("");
+      setPasswordRecovery(false);
+      setToast("ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว");
+    } catch {
+      setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     setReady(false);
@@ -562,6 +631,32 @@ export default function TradingJournal() {
   };
 
   if (authStatus === "checking") return <div className="loading">กำลังตรวจสอบการเข้าสู่ระบบ…</div>;
+
+  if (authStatus === "authenticated" && passwordRecovery) {
+    return (
+      <main className="login-page">
+        <section className="login-card">
+          <div className="login-mark"><LockKeyhole size={27} strokeWidth={2.3} /></div>
+          <p className="login-eyebrow">ACCOUNT RECOVERY</p>
+          <h1>ตั้งรหัสผ่านใหม่</h1>
+          <p className="login-caption">ตั้งรหัสผ่านอย่างน้อย 8 ตัวสำหรับบัญชีของคุณ</p>
+          <form onSubmit={updatePassword}>
+            <label>
+              <span>รหัสผ่านใหม่</span>
+              <input type="password" autoComplete="new-password" minLength={8} required value={newPassword} onChange={(event) => setNewPassword(event.target.value)} placeholder="อย่างน้อย 8 ตัว" />
+            </label>
+            <label>
+              <span>ยืนยันรหัสผ่านใหม่</span>
+              <input type="password" autoComplete="new-password" minLength={8} required value={newPasswordConfirm} onChange={(event) => setNewPasswordConfirm(event.target.value)} placeholder="กรอกรหัสผ่านอีกครั้ง" />
+            </label>
+            {loginError && <div className="login-error">{loginError}</div>}
+            <button disabled={loginBusy} type="submit"><Check size={17} /> {loginBusy ? "กำลังบันทึก…" : "บันทึกรหัสผ่านใหม่"}</button>
+          </form>
+          <div className="login-security"><LockKeyhole size={13} /> ลิงก์นี้ใช้สำหรับตั้งรหัสผ่านของบัญชีคุณเท่านั้น</div>
+        </section>
+      </main>
+    );
+  }
 
   if (authStatus === "unauthenticated") {
     return (
@@ -576,22 +671,23 @@ export default function TradingJournal() {
         <section className="login-card">
           <div className="login-mark"><TrendingUp size={28} strokeWidth={2.5} /></div>
           <p className="login-eyebrow">PERSONAL TRADING WORKSPACE</p>
-          <h1>{authMode === "login" ? "ยินดีต้อนรับกลับ" : "สร้างบัญชีใหม่"}</h1>
-          <p className="login-caption">{authMode === "login" ? "เข้าสู่ระบบเพื่อเปิด Trading Journal ของคุณ" : "ข้อมูลการเทรดของแต่ละบัญชีจะแยกออกจากกัน"}</p>
+          <h1>{authMode === "login" ? "ยินดีต้อนรับกลับ" : authMode === "register" ? "สร้างบัญชีใหม่" : "ลืมรหัสผ่าน"}</h1>
+          <p className="login-caption">{authMode === "login" ? "เข้าสู่ระบบเพื่อเปิด Trading Journal ของคุณ" : authMode === "register" ? "ข้อมูลการเทรดของแต่ละบัญชีจะแยกออกจากกัน" : "กรอกอีเมลที่ใช้สมัครเพื่อรับลิงก์ตั้งรหัสผ่านใหม่"}</p>
           <div className="auth-tabs">
-            <button className={authMode === "login" ? "active" : ""} type="button" onClick={() => { setAuthMode("login"); setLoginError(""); setRegisterMessage(""); }}>เข้าสู่ระบบ</button>
-            <button className={authMode === "register" ? "active" : ""} type="button" onClick={() => { setAuthMode("register"); setLoginError(""); setRegisterMessage(""); }}>สมัครใช้งาน</button>
+            <button className={authMode === "login" ? "active" : ""} type="button" onClick={() => { setAuthMode("login"); setLoginError(""); setRegisterMessage(""); setForgotMessage(""); }}>เข้าสู่ระบบ</button>
+            <button className={authMode === "register" ? "active" : ""} type="button" onClick={() => { setAuthMode("register"); setLoginError(""); setRegisterMessage(""); setForgotMessage(""); }}>สมัครใช้งาน</button>
           </div>
           {authMode === "login" ? (
             <form onSubmit={login}>
               <label>
-                <span>อีเมล หรือ Username เดิม</span>
-                <input autoComplete="username" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอกอีเมล หรือ sekaspn" />
+                <span>Username หรืออีเมล</span>
+                <input autoComplete="username" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอก Username หรืออีเมล" />
               </label>
               <label>
                 <span>รหัสผ่าน</span>
                 <input type="password" autoComplete="current-password" required value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="กรอกรหัสผ่าน" />
               </label>
+              <div className="forgot-password-row"><button type="button" onClick={() => { setAuthMode("forgot"); setForgotEmail(loginUsername.includes("@") ? loginUsername : ""); setLoginError(""); setForgotMessage(""); }}>ลืมรหัสผ่าน?</button></div>
               <div className={`turnstile-wrap${captchaError ? " turnstile-hidden" : ""}`}>
                 {TURNSTILE_SITE_KEY ? (
                   <div ref={turnstileContainerRef} />
@@ -602,6 +698,25 @@ export default function TradingJournal() {
               {captchaError && <div className="captcha-error"><span>ระบบตรวจสอบขัดข้อง (รหัส {captchaError})</span> <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
               {loginError && <div className="login-error">{loginError}</div>}
               <button disabled={loginBusy || !captchaToken} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
+            </form>
+          ) : authMode === "forgot" ? (
+            <form onSubmit={requestPasswordReset}>
+              <label>
+                <span>อีเมลที่ใช้สมัคร</span>
+                <input type="email" autoComplete="email" required value={forgotEmail} onChange={(event) => setForgotEmail(event.target.value)} placeholder="กรอกอีเมลของคุณ" />
+              </label>
+              <div className={`turnstile-wrap${captchaError ? " turnstile-hidden" : ""}`}>
+                {TURNSTILE_SITE_KEY ? (
+                  <div ref={turnstileContainerRef} />
+                ) : (
+                  <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
+                )}
+              </div>
+              {captchaError && <div className="captcha-error"><span>ระบบตรวจสอบขัดข้อง (รหัส {captchaError})</span> <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
+              {loginError && <div className="login-error">{loginError}</div>}
+              {forgotMessage && <div className="register-success"><Check size={15} /> {forgotMessage}</div>}
+              <button disabled={loginBusy || Boolean(forgotMessage) || !captchaToken} type="submit"><LockKeyhole size={17} /> {loginBusy ? "กำลังส่ง…" : "ส่งลิงก์ตั้งรหัสผ่านใหม่"}</button>
+              <button className="auth-secondary-button" type="button" onClick={() => { setAuthMode("login"); setLoginError(""); setForgotMessage(""); }}>กลับไปเข้าสู่ระบบ</button>
             </form>
           ) : (
             <form onSubmit={register}>
