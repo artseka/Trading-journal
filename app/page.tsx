@@ -161,6 +161,7 @@ export default function TradingJournal() {
   const [registerConfirm, setRegisterConfirm] = useState("");
   const [registerMessage, setRegisterMessage] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaError, setCaptchaError] = useState(false);
   const [turnstileReady, setTurnstileReady] = useState(false);
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<JournalData>({ trades: [], capital: {} });
@@ -186,9 +187,16 @@ export default function TradingJournal() {
       language: "th",
       action: authMode === "register" ? "signup" : "login",
       "offlabel-show-help": false,
-      callback: (token: string) => setCaptchaToken(token),
+      callback: (token: string) => {
+        setCaptchaError(false);
+        setCaptchaToken(token);
+      },
       "expired-callback": () => setCaptchaToken(""),
-      "error-callback": () => setCaptchaToken(""),
+      "error-callback": () => {
+        setCaptchaToken("");
+        setCaptchaError(true);
+        return true;
+      },
     });
 
     return () => {
@@ -197,10 +205,12 @@ export default function TradingJournal() {
       }
       turnstileWidgetIdRef.current = null;
       setCaptchaToken("");
+      setCaptchaError(false);
     };
   }, [authMode, authStatus, turnstileReady]);
 
   const resetCaptcha = () => {
+    setCaptchaError(false);
     if (turnstileWidgetIdRef.current && window.turnstile) {
       window.turnstile.reset(turnstileWidgetIdRef.current);
     }
@@ -582,13 +592,14 @@ export default function TradingJournal() {
                 <span>รหัสผ่าน</span>
                 <input type="password" autoComplete="current-password" required value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="กรอกรหัสผ่าน" />
               </label>
-              <div className="turnstile-wrap">
+              <div className={`turnstile-wrap${captchaError ? " turnstile-hidden" : ""}`}>
                 {TURNSTILE_SITE_KEY ? (
                   <div ref={turnstileContainerRef} />
                 ) : (
                   <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
                 )}
               </div>
+              {captchaError && <div className="captcha-error">ระบบตรวจสอบขัดข้อง <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
               {loginError && <div className="login-error">{loginError}</div>}
               <button disabled={loginBusy || !captchaToken} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
             </form>
@@ -610,13 +621,14 @@ export default function TradingJournal() {
                 <span>ยืนยันรหัสผ่าน</span>
                 <input type="password" autoComplete="new-password" minLength={8} required value={registerConfirm} onChange={(event) => setRegisterConfirm(event.target.value)} placeholder="กรอกรหัสผ่านอีกครั้ง" />
               </label>
-              <div className="turnstile-wrap">
+              <div className={`turnstile-wrap${captchaError ? " turnstile-hidden" : ""}`}>
                 {TURNSTILE_SITE_KEY ? (
                   <div ref={turnstileContainerRef} />
                 ) : (
                   <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
                 )}
               </div>
+              {captchaError && <div className="captcha-error">ระบบตรวจสอบขัดข้อง <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
               {loginError && <div className="login-error">{loginError}</div>}
               {registerMessage && <div className="register-success"><Check size={15} /> {registerMessage}</div>}
               <button disabled={loginBusy || Boolean(registerMessage) || !captchaToken} type="submit"><Plus size={17} /> {loginBusy ? "กำลังสมัคร…" : "สมัครสมาชิก"}</button>

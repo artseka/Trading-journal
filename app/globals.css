@@ -67,7 +67,10 @@ button { color: inherit; }
 .register-success svg { flex: 0 0 auto; margin-top: 1px; }
 .turnstile-wrap { display: flex; min-height: 65px; align-items: center; justify-content: center; overflow: hidden; }
 .turnstile-wrap > div { width: 100%; }
+.turnstile-wrap.turnstile-hidden { display: none; }
 .turnstile-config-error { padding: 9px 10px; border-radius: 8px; color: #a83c3c; background: var(--red-soft); font-size: 10px; text-align: center; }
+.captcha-error { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px; border-radius: 8px; color: #a83c3c; background: var(--red-soft); font-size: 10px; }
+.captcha-error button { padding: 5px 9px; border: 1px solid rgba(168,60,60,.25); border-radius: 6px; color: #a83c3c; background: white; font-size: 10px; font-weight: 700; cursor: pointer; }
 .login-security { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 18px; color: #8d9792; font-size: 9px; }
 .page-shell { max-width: 1460px; margin: auto; padding: 20px 30px 48px; }
 
