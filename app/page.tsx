@@ -19,12 +19,11 @@ import {
   Target,
   Trash2,
   TrendingUp,
-  Upload,
   WalletCards,
   X,
 } from "lucide-react";
 import Script from "next/script";
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createTradingJournalWorkbook } from "../lib/excel-export";
 
 declare global {
@@ -178,7 +177,6 @@ export default function TradingJournal() {
   const [showForm, setShowForm] = useState(false);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
-  const importRef = useRef<HTMLInputElement>(null);
   const turnstileContainerRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetIdRef = useRef<string | null>(null);
 
@@ -445,43 +443,6 @@ export default function TradingJournal() {
     anchor.click();
     URL.revokeObjectURL(url);
     setToast("ดาวน์โหลดไฟล์ Excel แล้ว");
-  };
-
-  const importData = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const parsed = JSON.parse(String(reader.result));
-        if (!Array.isArray(parsed.trades) || typeof parsed.capital !== "object") throw new Error();
-        const response = await fetch("/api/journal", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(parsed),
-        });
-        if (!response.ok) throw new Error();
-        setData(parsed);
-        const cloudResponse = await fetch("/api/journal", { cache: "no-store" });
-        if (cloudResponse.ok) {
-          const cloud = await cloudResponse.json();
-          setData({
-            trades: (cloud.trades || []).map(fromDatabaseTrade),
-            capital: Object.fromEntries(
-              (cloud.capital || []).map((item: { month_key: string; amount: number | string }) => [
-                item.month_key,
-                Number(item.amount) || 0,
-              ]),
-            ),
-          });
-        }
-        setToast("นำเข้าข้อมูลขึ้นคลาวด์สำเร็จ");
-      } catch {
-        window.alert("ไฟล์นี้ไม่ใช่ไฟล์สำรองของ Trading Journal");
-      }
-      event.target.value = "";
-    };
-    reader.readAsText(file);
   };
 
   const login = async (event: FormEvent) => {
@@ -775,8 +736,6 @@ export default function TradingJournal() {
         <div className="top-actions">
           <span className="user-greeting">สวัสดีครับ คุณ{accountUsername || "ผู้ใช้งาน"}</span>
           <button className="icon-text-button logout-button" onClick={logout}><LogOut size={16} /> ออกจากระบบ</button>
-          <button className="icon-button mobile-import" onClick={() => importRef.current?.click()} aria-label="นำเข้าข้อมูล"><Upload size={18} /></button>
-          <input ref={importRef} type="file" accept=".json,application/json" hidden onChange={importData} />
         </div>
       </header>
 
@@ -890,7 +849,6 @@ export default function TradingJournal() {
             <div><Download size={18} /><span><b>Export ข้อมูล</b><small>ดาวน์โหลดรายการเทรดเป็นไฟล์ Excel</small></span></div>
             <div className="backup-actions">
               <button onClick={exportData}>Export Excel</button>
-              <button onClick={() => importRef.current?.click()}><Upload size={14} /> นำเข้า</button>
             </div>
           </div>
         </aside>

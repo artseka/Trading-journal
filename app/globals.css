@@ -97,7 +97,7 @@ button { color: inherit; }
 .local-status { gap: 6px; color: #a9b5c7; font-size: 12px; margin-right: 7px; }
 .user-greeting { max-width: 240px; overflow: hidden; color: #68dbb9; font-size: 15px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .cloud-status { color: #5ee0b4; }
-.icon-text-button, .icon-button {
+.icon-text-button {
   border: 1px solid rgba(255,255,255,.12);
   background: var(--slate);
   border-radius: 9px;
@@ -105,7 +105,6 @@ button { color: inherit; }
 }
 .icon-text-button { gap: 7px; padding: 8px 12px; font-size: 12px; font-weight: 600; }
 .logout-button { color: #e6ebf2; }
-.icon-button { width: 36px; height: 36px; display: none; place-items: center; }
 
 .hero-row { display: flex; align-items: end; justify-content: space-between; padding: 4px 24px 19px; margin-bottom: 15px; color: white; border-radius: 0 0 22px 22px; background: var(--navy); }
 .section-kicker { margin: 0 0 4px; color: #5ee0b4; font-size: 11px; font-weight: 700; letter-spacing: .7px; }
@@ -219,7 +218,7 @@ button { color: inherit; }
 .backup-card span b, .backup-card span small { display: block; }
 .backup-card span b { font-size: 10px; }
 .backup-card span small { color: #89938e; font-size: 8px; }
-.backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 9px; }
+.backup-actions { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 9px; }
 .backup-actions button { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 6px; border: 1px solid #d8e1dc; border-radius: 7px; background: white; color: #4d5c55; font-size: 9px; font-weight: 600; cursor: pointer; }
 
 .modal-backdrop { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(8, 15, 30, .62); backdrop-filter: blur(5px); }
@@ -287,7 +286,6 @@ button { color: inherit; }
   .eyebrow, .local-status, .icon-text-button { display: none; }
   .user-greeting { max-width: 145px; font-size: 12px; }
   .login-card { padding: 27px 22px; }
-  .mobile-import { display: grid; }
   .hero-row { align-items: center; padding: 9px 16px 20px; margin-bottom: 12px; }
   .section-kicker, .hero-caption { display: none; }
   .hero-row h2 { font-size: 21px; }
