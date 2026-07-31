@@ -680,8 +680,8 @@ export default function TradingJournal() {
           {authMode === "login" ? (
             <form onSubmit={login}>
               <label>
-                <span>Username หรืออีเมล</span>
-                <input autoComplete="username" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอก Username หรืออีเมล" />
+                <span>อีเมล</span>
+                <input type="email" autoComplete="email" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอกอีเมลของคุณ" />
               </label>
               <label>
                 <span>รหัสผ่าน</span>
