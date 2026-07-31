@@ -25,10 +25,18 @@ export async function supabaseRequest(path: string, accessToken: string, init: R
   return fetch(`${url}${path}`, { ...init, headers, cache: "no-store" });
 }
 
-export async function accessTokenIsValid(accessToken?: string) {
-  if (!accessToken) return false;
+export type SupabaseUser = {
+  id: string;
+  email?: string;
+};
+
+export async function getSupabaseUser(accessToken?: string): Promise<SupabaseUser | null> {
+  if (!accessToken) return null;
   const response = await supabaseRequest("/auth/v1/user", accessToken);
-  return response.ok;
+  if (!response.ok) return null;
+  const user = await response.json().catch(() => null);
+  if (!user || typeof user.id !== "string") return null;
+  return { id: user.id, email: typeof user.email === "string" ? user.email : undefined };
 }
 
 export type SupabaseSession = {

@@ -7,8 +7,9 @@ export async function POST(request: Request) {
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
     const expectedUsername = process.env.APP_USERNAME || "";
-    const email = process.env.SUPABASE_LOGIN_EMAIL || "";
-    if (!username || username !== expectedUsername || !password || !email) {
+    const ownerEmail = process.env.SUPABASE_LOGIN_EMAIL || "";
+    const email = username.includes("@") ? username.toLowerCase() : username === expectedUsername ? ownerEmail : "";
+    if (!username || !password || !email) {
       return NextResponse.json({ ok: false, message: "Username หรือ Password ไม่ถูกต้อง" }, { status: 401 });
     }
 

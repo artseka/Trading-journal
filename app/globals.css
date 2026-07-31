@@ -54,12 +54,17 @@ button { color: inherit; }
 .login-card h1 { margin: 6px 0 3px; font-size: 25px; }
 .login-caption { margin: 0 0 23px; color: var(--muted); font-size: 12px; }
 .login-card form { display: grid; gap: 13px; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 17px; border-radius: 10px; background: #eef2f7; }
+.auth-tabs button { padding: 8px; border: 0; border-radius: 7px; color: var(--muted); background: transparent; font-size: 11px; font-weight: 700; cursor: pointer; }
+.auth-tabs button.active { color: white; background: var(--navy); box-shadow: 0 3px 9px rgba(16,26,47,.14); }
 .login-card label span { display: block; margin-bottom: 5px; color: #53625b; font-size: 11px; font-weight: 600; }
 .login-card input { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; outline: 0; background: #fbfcfb; font-size: 13px; }
 .login-card input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,131,95,.1); }
 .login-card form > button { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px; margin-top: 3px; border: 0; border-radius: 9px; color: white; background: var(--green); font-size: 12px; font-weight: 700; cursor: pointer; }
 .login-card form > button:disabled { opacity: .65; cursor: wait; }
 .login-error { padding: 8px 10px; border-radius: 8px; color: #a83c3c; background: var(--red-soft); font-size: 10px; }
+.register-success { display: flex; align-items: flex-start; gap: 6px; padding: 9px 10px; border-radius: 8px; color: var(--green-dark); background: var(--green-soft); font-size: 10px; line-height: 1.5; }
+.register-success svg { flex: 0 0 auto; margin-top: 1px; }
 .login-security { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 18px; color: #8d9792; font-size: 9px; }
 .page-shell { max-width: 1460px; margin: auto; padding: 20px 30px 48px; }
 

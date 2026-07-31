@@ -107,10 +107,10 @@ function money(value: number, sign = false) {
   }).format(value)}`;
 }
 
-function safeLoad(): JournalData {
+function safeLoad(key: string): JournalData {
   if (typeof window === "undefined") return { trades: [], capital: {} };
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "");
+    const parsed = JSON.parse(localStorage.getItem(key) || "");
     if (Array.isArray(parsed.trades) && parsed.capital && typeof parsed.capital === "object") {
       return parsed;
     }
@@ -137,10 +137,17 @@ function fromDatabaseTrade(trade: DatabaseTrade): Trade {
 
 export default function TradingJournal() {
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
+  const [accountId, setAccountId] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loginBusy, setLoginBusy] = useState(false);
+  const [registerUsername, setRegisterUsername] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerConfirm, setRegisterConfirm] = useState("");
+  const [registerMessage, setRegisterMessage] = useState("");
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<JournalData>({ trades: [], capital: {} });
   const [viewDate, setViewDate] = useState(() => new Date());
@@ -153,15 +160,32 @@ export default function TradingJournal() {
   const importRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/api/auth/session", { cache: "no-store" })
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+    const sessionRequest = accessToken && refreshToken
+      ? fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: hash.get("expires_in"),
+          }),
+        }).finally(() => window.history.replaceState({}, "", window.location.pathname + window.location.search))
+      : fetch("/api/auth/session", { cache: "no-store" });
+    sessionRequest
       .then((response) => response.json())
-      .then((result) => setAuthStatus(result.authenticated ? "authenticated" : "unauthenticated"))
+      .then((result) => {
+        setAccountId(result.authenticated && typeof result.userId === "string" ? result.userId : "");
+        setAuthStatus(result.authenticated ? "authenticated" : "unauthenticated");
+      })
       .catch(() => setAuthStatus("unauthenticated"));
   }, []);
 
   useEffect(() => {
-    if (authStatus !== "authenticated") return;
-    setData(safeLoad());
+    if (authStatus !== "authenticated" || !accountId) return;
+    setData(safeLoad(`${STORAGE_KEY}:${accountId}`));
     setReady(true);
     fetch("/api/journal", { cache: "no-store" })
       .then(async (response) => {
@@ -179,12 +203,12 @@ export default function TradingJournal() {
         });
       })
       .catch(() => setToast("โหลดคลาวด์ไม่สำเร็จ กำลังใช้ข้อมูลสำรองในเครื่อง"));
-  }, [authStatus]);
+  }, [authStatus, accountId]);
 
   useEffect(() => {
-    if (!ready) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data, ready]);
+    if (!ready || !accountId) return;
+    localStorage.setItem(`${STORAGE_KEY}:${accountId}`, JSON.stringify(data));
+  }, [accountId, data, ready]);
 
   useEffect(() => {
     if (!toast) return;
@@ -407,8 +431,49 @@ export default function TradingJournal() {
         setLoginError(result.message || "ไม่สามารถเข้าสู่ระบบได้");
         return;
       }
+      const sessionResponse = await fetch("/api/auth/session", { cache: "no-store" });
+      const session = await sessionResponse.json();
+      if (!session.authenticated || typeof session.userId !== "string") {
+        setLoginError("ไม่สามารถเปิดเซสชันผู้ใช้ได้ กรุณาลองอีกครั้ง");
+        return;
+      }
       setLoginPassword("");
+      setAccountId(session.userId);
       setAuthStatus("authenticated");
+    } catch {
+      setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
+  const register = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoginError("");
+    setRegisterMessage("");
+    if (registerPassword !== registerConfirm) {
+      setLoginError("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
+      return;
+    }
+    setLoginBusy(true);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          username: registerUsername,
+          email: registerEmail,
+          password: registerPassword,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setLoginError(result.message || "ไม่สามารถสมัครสมาชิกได้");
+        return;
+      }
+      setRegisterPassword("");
+      setRegisterConfirm("");
+      setRegisterMessage(result.message || "สมัครสำเร็จ กรุณายืนยันอีเมล");
     } catch {
       setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
     } finally {
@@ -419,6 +484,8 @@ export default function TradingJournal() {
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     setReady(false);
+    setAccountId("");
+    setData({ trades: [], capital: {} });
     setAuthStatus("unauthenticated");
     setLoginPassword("");
   };
@@ -431,21 +498,49 @@ export default function TradingJournal() {
         <section className="login-card">
           <div className="login-mark"><TrendingUp size={28} strokeWidth={2.5} /></div>
           <p className="login-eyebrow">PERSONAL TRADING WORKSPACE</p>
-          <h1>ยินดีต้อนรับกลับ</h1>
-          <p className="login-caption">เข้าสู่ระบบเพื่อเปิด Trading Journal ของคุณ</p>
-          <form onSubmit={login}>
-            <label>
-              <span>Username</span>
-              <input autoComplete="username" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอก Username" />
-            </label>
-            <label>
-              <span>Password</span>
-              <input type="password" autoComplete="current-password" required value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="กรอก Password" />
-            </label>
-            {loginError && <div className="login-error">{loginError}</div>}
-            <button disabled={loginBusy} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
-          </form>
-          <div className="login-security"><LockKeyhole size={13} /> พื้นที่ส่วนตัวสำหรับเจ้าของบัญชีเท่านั้น</div>
+          <h1>{authMode === "login" ? "ยินดีต้อนรับกลับ" : "สร้างบัญชีใหม่"}</h1>
+          <p className="login-caption">{authMode === "login" ? "เข้าสู่ระบบเพื่อเปิด Trading Journal ของคุณ" : "ข้อมูลการเทรดของแต่ละบัญชีจะแยกออกจากกัน"}</p>
+          <div className="auth-tabs">
+            <button className={authMode === "login" ? "active" : ""} type="button" onClick={() => { setAuthMode("login"); setLoginError(""); setRegisterMessage(""); }}>เข้าสู่ระบบ</button>
+            <button className={authMode === "register" ? "active" : ""} type="button" onClick={() => { setAuthMode("register"); setLoginError(""); setRegisterMessage(""); }}>สมัครใช้งาน</button>
+          </div>
+          {authMode === "login" ? (
+            <form onSubmit={login}>
+              <label>
+                <span>อีเมล หรือ Username เดิม</span>
+                <input autoComplete="username" required value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} placeholder="กรอกอีเมล หรือ sekaspn" />
+              </label>
+              <label>
+                <span>รหัสผ่าน</span>
+                <input type="password" autoComplete="current-password" required value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="กรอกรหัสผ่าน" />
+              </label>
+              {loginError && <div className="login-error">{loginError}</div>}
+              <button disabled={loginBusy} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
+            </form>
+          ) : (
+            <form onSubmit={register}>
+              <label>
+                <span>Username</span>
+                <input autoComplete="username" minLength={3} maxLength={20} pattern="[a-z0-9_]+" required value={registerUsername} onChange={(event) => setRegisterUsername(event.target.value.toLowerCase())} placeholder="เช่น trader02 (ภาษาอังกฤษ)" />
+              </label>
+              <label>
+                <span>อีเมล</span>
+                <input type="email" autoComplete="email" required value={registerEmail} onChange={(event) => setRegisterEmail(event.target.value)} placeholder="อีเมลสำหรับยืนยันบัญชี" />
+              </label>
+              <label>
+                <span>รหัสผ่าน</span>
+                <input type="password" autoComplete="new-password" minLength={8} required value={registerPassword} onChange={(event) => setRegisterPassword(event.target.value)} placeholder="อย่างน้อย 8 ตัว" />
+              </label>
+              <label>
+                <span>ยืนยันรหัสผ่าน</span>
+                <input type="password" autoComplete="new-password" minLength={8} required value={registerConfirm} onChange={(event) => setRegisterConfirm(event.target.value)} placeholder="กรอกรหัสผ่านอีกครั้ง" />
+              </label>
+              {loginError && <div className="login-error">{loginError}</div>}
+              {registerMessage && <div className="register-success"><Check size={15} /> {registerMessage}</div>}
+              <button disabled={loginBusy || Boolean(registerMessage)} type="submit"><Plus size={17} /> {loginBusy ? "กำลังสมัคร…" : "สมัครสมาชิก"}</button>
+            </form>
+          )}
+          <div className="login-security"><LockKeyhole size={13} /> ข้อมูลของแต่ละบัญชีถูกแยกและป้องกันด้วย Supabase</div>
         </section>
       </main>
     );
