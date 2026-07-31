@@ -715,7 +715,6 @@ export default function TradingJournal() {
               <button disabled={loginBusy || Boolean(registerMessage) || !captchaToken} type="submit"><Plus size={17} /> {loginBusy ? "กำลังสมัคร…" : "สมัครสมาชิก"}</button>
             </form>
           )}
-          <div className="login-security"><LockKeyhole size={13} /> ข้อมูลของแต่ละบัญชีถูกแยกและป้องกันด้วย Supabase</div>
         </section>
       </main>
     );
