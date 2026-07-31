@@ -783,7 +783,8 @@ export default function TradingJournal() {
               <p>แตะวันที่เพื่อดูหรือเพิ่มรายการ</p>
             </div>
             <label className="capital-field">
-              <span>ทุนเริ่มต้นเดือนนี้</span>
+              <span className="capital-label-desktop">ทุนเริ่มต้นเดือนนี้</span>
+              <span className="capital-label-mobile">ทุนเดือนนี้</span>
               <div><b>$</b><input type="number" min="0" value={data.capital[currentMonthKey] ?? ""} placeholder="0" onChange={(e) => updateCapital(e.target.value)} onBlur={persistCapital} /></div>
             </label>
           </div>

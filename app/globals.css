@@ -136,6 +136,7 @@ button { color: inherit; }
 .calendar-toolbar p, .side-heading p { margin: 3px 0 0; color: #939d98; font-size: 11px; }
 .capital-field { display: flex; align-items: center; gap: 9px; }
 .capital-field > span { color: var(--muted); font-size: 11px; }
+.capital-label-mobile { display: none; }
 .capital-field div { display: flex; align-items: center; width: 88px; border: 1px solid var(--line); border-radius: 8px; background: #f8fafc; }
 .capital-field b { padding-left: 7px; color: #89938e; font-size: 11px; }
 .capital-field input { min-width: 0; width: 100%; padding: 5px 5px 5px 3px; border: 0; outline: 0; text-align: right; background: transparent; font: 600 11px "Manrope", sans-serif; }
@@ -290,7 +291,7 @@ button { color: inherit; }
   .section-kicker, .hero-caption { display: none; }
   .hero-row h2 { font-size: 21px; }
   .month-nav button { height: 33px; min-width: 33px; }
-  .month-nav .today-button { display: none; }
+  .month-nav .today-button { display: grid; padding: 0 9px; font-size: 10px; }
   .stat-grid { gap: 7px; margin-bottom: 9px; }
   .stat-card { min-height: 95px; padding: 13px; border-radius: 11px; }
   .stat-card strong { margin-top: 8px; font-size: 18px; }
@@ -300,7 +301,9 @@ button { color: inherit; }
   .calendar-card { padding: 10px 7px 9px; border-radius: 13px; }
   .calendar-toolbar { align-items: center; min-height: 46px; margin: 0 3px 5px; }
   .calendar-toolbar h3 { font-size: 13px; }
-  .calendar-toolbar p, .capital-field > span { display: none; }
+  .calendar-toolbar p, .capital-label-desktop { display: none; }
+  .capital-label-mobile { display: inline; font-size: 9px !important; }
+  .capital-field { gap: 5px; }
   .capital-field div { width: 72px; }
   .weekday-grid, .calendar-grid { gap: 3px; }
   .weekday-grid div { padding: 4px 2px; font-size: 9px; }
