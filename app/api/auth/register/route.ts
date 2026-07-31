@@ -9,6 +9,11 @@ export async function POST(request: Request) {
     const username = typeof body.username === "string" ? body.username.trim().toLowerCase() : "";
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     const password = typeof body.password === "string" ? body.password : "";
+    const captchaToken = typeof body.captchaToken === "string" ? body.captchaToken.trim() : "";
+
+    if (!captchaToken) {
+      return NextResponse.json({ message: "กรุณายืนยันว่าคุณไม่ใช่โปรแกรมอัตโนมัติ" }, { status: 400 });
+    }
 
     if (!usernamePattern.test(username)) {
       return NextResponse.json({ message: "Username ต้องมี 3-20 ตัว และใช้เฉพาะ a-z, 0-9 หรือ _" }, { status: 400 });
@@ -42,7 +47,12 @@ export async function POST(request: Request) {
       {
         method: "POST",
         headers: { apikey: anonKey, "content-type": "application/json" },
-        body: JSON.stringify({ email, password, data: { username } }),
+        body: JSON.stringify({
+          email,
+          password,
+          data: { username },
+          gotrue_meta_security: { captcha_token: captchaToken },
+        }),
         cache: "no-store",
       },
     );

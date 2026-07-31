@@ -65,6 +65,9 @@ button { color: inherit; }
 .login-error { padding: 8px 10px; border-radius: 8px; color: #a83c3c; background: var(--red-soft); font-size: 10px; }
 .register-success { display: flex; align-items: flex-start; gap: 6px; padding: 9px 10px; border-radius: 8px; color: var(--green-dark); background: var(--green-soft); font-size: 10px; line-height: 1.5; }
 .register-success svg { flex: 0 0 auto; margin-top: 1px; }
+.turnstile-wrap { display: flex; min-height: 65px; align-items: center; justify-content: center; overflow: hidden; }
+.turnstile-wrap > div { width: 100%; }
+.turnstile-config-error { padding: 9px 10px; border-radius: 8px; color: #a83c3c; background: var(--red-soft); font-size: 10px; text-align: center; }
 .login-security { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 18px; color: #8d9792; font-size: 9px; }
 .page-shell { max-width: 1460px; margin: auto; padding: 20px 30px 48px; }
 

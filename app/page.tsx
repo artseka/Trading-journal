@@ -24,7 +24,18 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
+import Script from "next/script";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: Record<string, unknown>) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId: string) => void;
+    };
+  }
+}
 
 type Result = "win" | "loss" | "breakeven";
 type Side = "buy" | "sell";
@@ -65,6 +76,7 @@ type TradeDraft = Omit<Trade, "id" | "date" | "createdAt" | "pnl"> & {
 };
 
 const STORAGE_KEY = "trading-journal-v1";
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 const monthNames = [
   "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
@@ -148,6 +160,8 @@ export default function TradingJournal() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfirm, setRegisterConfirm] = useState("");
   const [registerMessage, setRegisterMessage] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [turnstileReady, setTurnstileReady] = useState(false);
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<JournalData>({ trades: [], capital: {} });
   const [viewDate, setViewDate] = useState(() => new Date());
@@ -158,6 +172,39 @@ export default function TradingJournal() {
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
+  const turnstileContainerRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (authStatus !== "unauthenticated" || !turnstileReady || !TURNSTILE_SITE_KEY || !window.turnstile || !turnstileContainerRef.current) return;
+    if (turnstileWidgetIdRef.current) return;
+
+    turnstileWidgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: "light",
+      size: "flexible",
+      language: "th",
+      action: "signup",
+      callback: (token: string) => setCaptchaToken(token),
+      "expired-callback": () => setCaptchaToken(""),
+      "error-callback": () => setCaptchaToken(""),
+    });
+
+    return () => {
+      if (turnstileWidgetIdRef.current && window.turnstile) {
+        window.turnstile.remove(turnstileWidgetIdRef.current);
+      }
+      turnstileWidgetIdRef.current = null;
+      setCaptchaToken("");
+    };
+  }, [authMode, authStatus, turnstileReady]);
+
+  const resetCaptcha = () => {
+    if (turnstileWidgetIdRef.current && window.turnstile) {
+      window.turnstile.reset(turnstileWidgetIdRef.current);
+    }
+    setCaptchaToken("");
+  };
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.slice(1));
@@ -418,17 +465,22 @@ export default function TradingJournal() {
 
   const login = async (event: FormEvent) => {
     event.preventDefault();
-    setLoginBusy(true);
     setLoginError("");
+    if (!captchaToken) {
+      setLoginError("กรุณารอให้ระบบตรวจสอบความปลอดภัยให้เรียบร้อย");
+      return;
+    }
+    setLoginBusy(true);
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username: loginUsername, password: loginPassword }),
+        body: JSON.stringify({ username: loginUsername, password: loginPassword, captchaToken }),
       });
       const result = await response.json();
       if (!response.ok) {
         setLoginError(result.message || "ไม่สามารถเข้าสู่ระบบได้");
+        resetCaptcha();
         return;
       }
       const sessionResponse = await fetch("/api/auth/session", { cache: "no-store" });
@@ -442,6 +494,7 @@ export default function TradingJournal() {
       setAuthStatus("authenticated");
     } catch {
       setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
+      resetCaptcha();
     } finally {
       setLoginBusy(false);
     }
@@ -455,6 +508,10 @@ export default function TradingJournal() {
       setLoginError("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
       return;
     }
+    if (!captchaToken) {
+      setLoginError("กรุณารอให้ระบบตรวจสอบความปลอดภัยให้เรียบร้อย");
+      return;
+    }
     setLoginBusy(true);
     try {
       const response = await fetch("/api/auth/register", {
@@ -464,11 +521,13 @@ export default function TradingJournal() {
           username: registerUsername,
           email: registerEmail,
           password: registerPassword,
+          captchaToken,
         }),
       });
       const result = await response.json();
       if (!response.ok) {
         setLoginError(result.message || "ไม่สามารถสมัครสมาชิกได้");
+        resetCaptcha();
         return;
       }
       setRegisterPassword("");
@@ -476,6 +535,7 @@ export default function TradingJournal() {
       setRegisterMessage(result.message || "สมัครสำเร็จ กรุณายืนยันอีเมล");
     } catch {
       setLoginError("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองอีกครั้ง");
+      resetCaptcha();
     } finally {
       setLoginBusy(false);
     }
@@ -495,6 +555,13 @@ export default function TradingJournal() {
   if (authStatus === "unauthenticated") {
     return (
       <main className="login-page">
+        <Script
+          id="cloudflare-turnstile"
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setTurnstileReady(true)}
+          onReady={() => setTurnstileReady(true)}
+        />
         <section className="login-card">
           <div className="login-mark"><TrendingUp size={28} strokeWidth={2.5} /></div>
           <p className="login-eyebrow">PERSONAL TRADING WORKSPACE</p>
@@ -514,8 +581,15 @@ export default function TradingJournal() {
                 <span>รหัสผ่าน</span>
                 <input type="password" autoComplete="current-password" required value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="กรอกรหัสผ่าน" />
               </label>
+              <div className="turnstile-wrap">
+                {TURNSTILE_SITE_KEY ? (
+                  <div ref={turnstileContainerRef} />
+                ) : (
+                  <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
+                )}
+              </div>
               {loginError && <div className="login-error">{loginError}</div>}
-              <button disabled={loginBusy} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
+              <button disabled={loginBusy || !captchaToken} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
             </form>
           ) : (
             <form onSubmit={register}>
@@ -535,9 +609,16 @@ export default function TradingJournal() {
                 <span>ยืนยันรหัสผ่าน</span>
                 <input type="password" autoComplete="new-password" minLength={8} required value={registerConfirm} onChange={(event) => setRegisterConfirm(event.target.value)} placeholder="กรอกรหัสผ่านอีกครั้ง" />
               </label>
+              <div className="turnstile-wrap">
+                {TURNSTILE_SITE_KEY ? (
+                  <div ref={turnstileContainerRef} />
+                ) : (
+                  <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
+                )}
+              </div>
               {loginError && <div className="login-error">{loginError}</div>}
               {registerMessage && <div className="register-success"><Check size={15} /> {registerMessage}</div>}
-              <button disabled={loginBusy || Boolean(registerMessage)} type="submit"><Plus size={17} /> {loginBusy ? "กำลังสมัคร…" : "สมัครสมาชิก"}</button>
+              <button disabled={loginBusy || Boolean(registerMessage) || !captchaToken} type="submit"><Plus size={17} /> {loginBusy ? "กำลังสมัคร…" : "สมัครสมาชิก"}</button>
             </form>
           )}
           <div className="login-security"><LockKeyhole size={13} /> ข้อมูลของแต่ละบัญชีถูกแยกและป้องกันด้วย Supabase</div>

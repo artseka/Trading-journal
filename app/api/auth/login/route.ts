@@ -6,9 +6,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
+    const captchaToken = typeof body.captchaToken === "string" ? body.captchaToken.trim() : "";
     const expectedUsername = process.env.APP_USERNAME || "";
     const ownerEmail = process.env.SUPABASE_LOGIN_EMAIL || "";
     const email = username.includes("@") ? username.toLowerCase() : username === expectedUsername ? ownerEmail : "";
+    if (!captchaToken) {
+      return NextResponse.json({ ok: false, message: "กรุณายืนยันว่าคุณไม่ใช่โปรแกรมอัตโนมัติ" }, { status: 400 });
+    }
     if (!username || !password || !email) {
       return NextResponse.json({ ok: false, message: "Username หรือ Password ไม่ถูกต้อง" }, { status: 401 });
     }
@@ -17,7 +21,11 @@ export async function POST(request: Request) {
     const authResponse = await fetch(`${url}/auth/v1/token?grant_type=password`, {
       method: "POST",
       headers: { apikey: anonKey, "content-type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email,
+        password,
+        gotrue_meta_security: { captcha_token: captchaToken },
+      }),
       cache: "no-store",
     });
     if (!authResponse.ok) {
