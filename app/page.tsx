@@ -922,7 +922,7 @@ export default function TradingJournal() {
                   <textarea rows={3} value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} placeholder="สิ่งที่ทำได้ดี ข้อผิดพลาด หรืออารมณ์ระหว่างเทรด…" />
                 </div>
                 <footer className="form-footer">
-                  <button type="button" className="secondary" onClick={() => { setShowForm(false); setEditingId(null); setDraft(emptyDraft); }}>ยกเลิก</button>
+                  <button type="button" className="secondary" onClick={closeModal}>ยกเลิก</button>
                   <button type="submit" className="save-button"><Check size={17} /> {editingId ? "บันทึกการแก้ไข" : "บันทึกเทรด"}</button>
                 </footer>
               </form>
