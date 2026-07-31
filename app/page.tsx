@@ -772,7 +772,6 @@ export default function TradingJournal() {
         </div>
         <div className="top-actions">
           <span className="user-greeting">สวัสดีครับ คุณ{accountUsername || "ผู้ใช้งาน"}</span>
-          <button className="icon-text-button" onClick={exportData}><Download size={16} /> สำรองข้อมูล</button>
           <button className="icon-text-button logout-button" onClick={logout}><LogOut size={16} /> ออกจากระบบ</button>
           <button className="icon-button mobile-import" onClick={() => importRef.current?.click()} aria-label="นำเข้าข้อมูล"><Upload size={18} /></button>
           <input ref={importRef} type="file" accept=".json,application/json" hidden onChange={importData} />
