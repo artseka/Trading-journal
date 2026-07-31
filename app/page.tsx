@@ -671,7 +671,7 @@ export default function TradingJournal() {
         <section className="login-card">
           <div className="login-mark"><TrendingUp size={28} strokeWidth={2.5} /></div>
           <p className="login-eyebrow">PERSONAL TRADING WORKSPACE</p>
-          <h1>{authMode === "login" ? "ยินดีต้อนรับกลับ" : authMode === "register" ? "สร้างบัญชีใหม่" : "ลืมรหัสผ่าน"}</h1>
+          <h1>{authMode === "login" ? "ยินดีต้อนรับ" : authMode === "register" ? "สร้างบัญชีใหม่" : "ลืมรหัสผ่าน"}</h1>
           <p className="login-caption">{authMode === "login" ? "เข้าสู่ระบบเพื่อเปิด Trading Journal ของคุณ" : authMode === "register" ? "ข้อมูลการเทรดของแต่ละบัญชีจะแยกออกจากกัน" : "กรอกอีเมลที่ใช้สมัครเพื่อรับลิงก์ตั้งรหัสผ่านใหม่"}</p>
           <div className="auth-tabs">
             <button className={authMode === "login" ? "active" : ""} type="button" onClick={() => { setAuthMode("login"); setLoginError(""); setRegisterMessage(""); setForgotMessage(""); }}>เข้าสู่ระบบ</button>
