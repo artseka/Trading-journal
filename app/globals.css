@@ -142,7 +142,7 @@ button { color: inherit; }
 
 .weekday-grid, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
 .weekday-grid { margin-bottom: 5px; }
-.weekday-grid div { padding: 5px; text-align: center; color: #818d87; font-size: 10px; font-weight: 700; }
+.weekday-grid div { padding: 5px; text-align: center; color: var(--navy); font-size: 10px; font-weight: 700; }
 .weekday-grid .weekend-label { color: var(--red); }
 .day-cell {
   position: relative;
