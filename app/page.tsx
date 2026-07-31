@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Script from "next/script";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { createTradingJournalWorkbook } from "../lib/excel-export";
 
 declare global {
   interface Window {
@@ -435,14 +436,15 @@ export default function TradingJournal() {
   };
 
   const exportData = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+    const workbook = createTradingJournalWorkbook(data);
+    const blob = new Blob([Uint8Array.from(workbook).buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `trading-journal-backup-${dateKey(new Date())}.json`;
+    anchor.download = `trading-journal-${dateKey(new Date())}.xlsx`;
     anchor.click();
     URL.revokeObjectURL(url);
-    setToast("ดาวน์โหลดไฟล์สำรองแล้ว");
+    setToast("ดาวน์โหลดไฟล์ Excel แล้ว");
   };
 
   const importData = (event: ChangeEvent<HTMLInputElement>) => {
@@ -885,9 +887,9 @@ export default function TradingJournal() {
             ))}
           </div>
           <div className="backup-card">
-            <div><Download size={18} /><span><b>สำรองข้อมูลล่าสุด</b><small>เก็บไฟล์ไว้ใน Drive หรือ iCloud</small></span></div>
+            <div><Download size={18} /><span><b>Export ข้อมูล</b><small>ดาวน์โหลดรายการเทรดเป็นไฟล์ Excel</small></span></div>
             <div className="backup-actions">
-              <button onClick={exportData}>ส่งออก</button>
+              <button onClick={exportData}>Export Excel</button>
               <button onClick={() => importRef.current?.click()}><Upload size={14} /> นำเข้า</button>
             </div>
           </div>
