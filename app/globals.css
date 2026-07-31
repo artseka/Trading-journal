@@ -119,7 +119,7 @@ button { color: inherit; }
 .stat-grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 15px; }
 .stat-card { min-height: 122px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255,255,255,.96); box-shadow: 0 5px 16px rgba(30,44,67,.035); }
 .stat-card.primary-stat { border-color: #bfe9da; background: linear-gradient(135deg, #edfbf6 0%, #fff 72%); }
-.stat-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.stat-label { display: flex; align-items: center; gap: 7px; color: var(--navy); font-size: 12px; font-weight: 700; }
 .stat-card strong { display: block; margin: 10px 0 2px; font: 700 25px/1 "Manrope", sans-serif; letter-spacing: -.8px; }
 .stat-card strong em { font-size: 15px; font-style: normal; }
 .stat-card small { color: #89938e; font-size: 11px; }
