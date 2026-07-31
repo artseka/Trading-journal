@@ -161,7 +161,7 @@ export default function TradingJournal() {
   const [registerConfirm, setRegisterConfirm] = useState("");
   const [registerMessage, setRegisterMessage] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
-  const [captchaError, setCaptchaError] = useState(false);
+  const [captchaError, setCaptchaError] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<JournalData>({ trades: [], capital: {} });
@@ -188,13 +188,13 @@ export default function TradingJournal() {
       action: authMode === "register" ? "signup" : "login",
       "offlabel-show-help": false,
       callback: (token: string) => {
-        setCaptchaError(false);
+        setCaptchaError("");
         setCaptchaToken(token);
       },
       "expired-callback": () => setCaptchaToken(""),
-      "error-callback": () => {
+      "error-callback": (errorCode: string) => {
         setCaptchaToken("");
-        setCaptchaError(true);
+        setCaptchaError(errorCode || "unknown");
         return true;
       },
     });
@@ -205,12 +205,12 @@ export default function TradingJournal() {
       }
       turnstileWidgetIdRef.current = null;
       setCaptchaToken("");
-      setCaptchaError(false);
+      setCaptchaError("");
     };
   }, [authMode, authStatus, turnstileReady]);
 
   const resetCaptcha = () => {
-    setCaptchaError(false);
+    setCaptchaError("");
     if (turnstileWidgetIdRef.current && window.turnstile) {
       window.turnstile.reset(turnstileWidgetIdRef.current);
     }
@@ -599,7 +599,7 @@ export default function TradingJournal() {
                   <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
                 )}
               </div>
-              {captchaError && <div className="captcha-error">ระบบตรวจสอบขัดข้อง <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
+              {captchaError && <div className="captcha-error"><span>ระบบตรวจสอบขัดข้อง (รหัส {captchaError})</span> <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
               {loginError && <div className="login-error">{loginError}</div>}
               <button disabled={loginBusy || !captchaToken} type="submit"><LogIn size={17} /> {loginBusy ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}</button>
             </form>
@@ -628,7 +628,7 @@ export default function TradingJournal() {
                   <div className="turnstile-config-error">ยังไม่ได้ตั้งค่าระบบตรวจสอบความปลอดภัย</div>
                 )}
               </div>
-              {captchaError && <div className="captcha-error">ระบบตรวจสอบขัดข้อง <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
+              {captchaError && <div className="captcha-error"><span>ระบบตรวจสอบขัดข้อง (รหัส {captchaError})</span> <button type="button" onClick={() => window.location.reload()}>ลองใหม่</button></div>}
               {loginError && <div className="login-error">{loginError}</div>}
               {registerMessage && <div className="register-success"><Check size={15} /> {registerMessage}</div>}
               <button disabled={loginBusy || Boolean(registerMessage) || !captchaToken} type="submit"><Plus size={17} /> {loginBusy ? "กำลังสมัคร…" : "สมัครสมาชิก"}</button>
