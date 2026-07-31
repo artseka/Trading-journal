@@ -281,12 +281,14 @@ button { color: inherit; }
 
 @media (max-width: 620px) {
   .page-shell { padding: 10px 10px 30px; }
-  .topbar { height: 68px; }
+  .topbar { height: 68px; padding: 0 14px; }
+  .brand { gap: 8px; min-width: 0; }
   .brand-mark { width: 38px; height: 38px; }
-  .brand h1 { font-size: 18px; }
+  .brand h1 { font-size: 16px; white-space: nowrap; }
   .eyebrow, .local-status, .icon-text-button { display: none; }
-  .user-greeting { max-width: 145px; font-size: 12px; }
-  .logout-button { width: 34px; height: 34px; display: grid; flex: 0 0 34px; place-items: center; padding: 0; }
+  .top-actions { gap: 6px; min-width: 0; }
+  .user-greeting { max-width: 110px; font-size: 10px; }
+  .logout-button { width: 32px; height: 32px; display: grid; flex: 0 0 32px; place-items: center; padding: 0; }
   .logout-button span { display: none; }
   .login-card { padding: 27px 22px; }
   .hero-row { align-items: center; padding: 9px 16px 20px; margin-bottom: 12px; }
