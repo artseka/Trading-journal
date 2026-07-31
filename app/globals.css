@@ -286,6 +286,8 @@ button { color: inherit; }
   .brand h1 { font-size: 18px; }
   .eyebrow, .local-status, .icon-text-button { display: none; }
   .user-greeting { max-width: 145px; font-size: 12px; }
+  .logout-button { width: 34px; height: 34px; display: grid; flex: 0 0 34px; place-items: center; padding: 0; }
+  .logout-button span { display: none; }
   .login-card { padding: 27px 22px; }
   .hero-row { align-items: center; padding: 9px 16px 20px; margin-bottom: 12px; }
   .section-kicker, .hero-caption { display: none; }

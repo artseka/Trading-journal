@@ -735,7 +735,7 @@ export default function TradingJournal() {
         </div>
         <div className="top-actions">
           <span className="user-greeting">สวัสดีครับ คุณ{accountUsername || "ผู้ใช้งาน"}</span>
-          <button className="icon-text-button logout-button" onClick={logout}><LogOut size={16} /> ออกจากระบบ</button>
+          <button className="icon-text-button logout-button" onClick={logout} aria-label="ออกจากระบบ" title="ออกจากระบบ"><LogOut size={16} /> <span>ออกจากระบบ</span></button>
         </div>
       </header>
 
