@@ -1,0 +1,14 @@
+node_modules
+.next
+.open-next
+.vinext
+.wrangler
+.vercel
+dist
+out
+.git
+*.log
+.env*
+!.env.example
+desktop.png
+mobile.png
