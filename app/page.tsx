@@ -81,6 +81,18 @@ const monthNames = [
   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
 ];
 const weekdays = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+const dailyQuotes = [
+  "วินัยสำคัญกว่าโชค ทำตามแผน ไม่ตามอารมณ์",
+  "ขาดทุนคือค่าเรียน กำไรคือรางวัลของความอดทน",
+  "ตลาดจะอยู่ที่นี่เสมอ พรุ่งนี้ยังมีโอกาสใหม่",
+  "เทรดเดอร์ที่ดีไม่ได้ชนะทุกไม้ แต่จัดการความเสี่ยงได้ทุกครั้ง",
+  "อย่าให้ไม้เดียวทำลายทั้งเดือน ปกป้องเงินทุนไว้ก่อน",
+  "ความสม่ำเสมอเอาชนะความสมบูรณ์แบบ",
+  "แผนที่ดีที่สุดคือแผนที่คุณทำตามได้จริง",
+  "รอจังหวะที่ใช่ ดีกว่ารีบเข้าไม้ที่ไม่มั่นใจ",
+  "บันทึกทุกการเทรด แล้วอดีตจะสอนอนาคตของคุณ",
+  "ตลาดให้รางวัลกับความอดทน ไม่ใช่ความเร่งรีบ",
+];
 const emptyDraft: TradeDraft = {
   pair: "",
   side: "buy",
@@ -311,6 +323,12 @@ export default function TradingJournal() {
     };
   }, [monthTrades]);
 
+  const dailyQuote = useMemo(() => {
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
+    );
+    return dailyQuotes[dayOfYear % dailyQuotes.length];
+  }, []);
   const selectedTrades = useMemo(
     () => data.trades.filter((trade) => trade.date === selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [data.trades, selectedDate],
@@ -744,6 +762,7 @@ export default function TradingJournal() {
           <h2>{monthNames[viewDate.getMonth()]} <span>{viewDate.getFullYear() + 543}</span></h2>
           <p className="hero-caption">ติดตามวินัย เรียนรู้จากทุกการตัดสินใจ</p>
         </div>
+        <p className="hero-quote">&ldquo;{dailyQuote}&rdquo;</p>
         <div className="month-nav">
           <button onClick={() => changeMonth(-1)} aria-label="เดือนก่อนหน้า"><ChevronLeft size={20} /></button>
           <button className="today-button" onClick={() => setViewDate(new Date())}>เดือนนี้</button>

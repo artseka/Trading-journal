@@ -111,6 +111,7 @@ button { color: inherit; }
 .hero-row h2 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -.6px; }
 .hero-row h2 span { color: #9ba9bd; font-weight: 500; }
 .hero-caption { margin: 4px 0 0; color: #aeb9c9; font-size: 12px; }
+.hero-quote { flex: 1; margin: 0 24px; padding-bottom: 4px; text-align: center; color: #cdd6e3; font-size: 13px; font-style: italic; line-height: 1.5; }
 .month-nav { display: flex; gap: 6px; padding-bottom: 2px; }
 .month-nav button { height: 38px; min-width: 38px; padding: 0; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: white; background: var(--slate); cursor: pointer; }
 .month-nav .today-button { padding: 0 13px; font-size: 12px; font-weight: 600; }
@@ -292,7 +293,7 @@ button { color: inherit; }
   .logout-button span { display: none; }
   .login-card { padding: 27px 22px; }
   .hero-row { align-items: center; padding: 9px 16px 20px; margin-bottom: 12px; }
-  .section-kicker, .hero-caption { display: none; }
+  .section-kicker, .hero-caption, .hero-quote { display: none; }
   .hero-row h2 { font-size: 18px; font-weight: 700; }
   .month-nav button { height: 33px; min-width: 33px; }
   .month-nav .today-button { display: grid; padding: 0 9px; font-size: 10px; }
