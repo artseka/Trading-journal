@@ -113,11 +113,11 @@ button { color: inherit; }
 .hero-caption { margin: 4px 0 0; color: #aeb9c9; font-size: 12px; }
 .hero-quote {
   flex: 1;
+  align-self: center;
   margin: 0 24px;
-  padding-bottom: 4px;
   text-align: center;
   color: #e3e8f0;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 600;
   font-style: italic;
   line-height: 1.5;
