@@ -323,11 +323,18 @@ export default function TradingJournal() {
     };
   }, [monthTrades]);
 
-  const dailyQuote = useMemo(() => {
+  const [quoteIndex, setQuoteIndex] = useState(() => {
     const dayOfYear = Math.floor(
       (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
     );
-    return dailyQuotes[dayOfYear % dailyQuotes.length];
+    return dayOfYear % dailyQuotes.length;
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setQuoteIndex((index) => (index + 1) % dailyQuotes.length);
+    }, 10000);
+    return () => clearInterval(timer);
   }, []);
   const selectedTrades = useMemo(
     () => data.trades.filter((trade) => trade.date === selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
@@ -762,7 +769,7 @@ export default function TradingJournal() {
           <h2>{monthNames[viewDate.getMonth()]} <span>{viewDate.getFullYear() + 543}</span></h2>
           <p className="hero-caption">ติดตามวินัย เรียนรู้จากทุกการตัดสินใจ</p>
         </div>
-        <p className="hero-quote">&ldquo;{dailyQuote}&rdquo;</p>
+        <p className="hero-quote" key={quoteIndex}>&ldquo;{dailyQuotes[quoteIndex]}&rdquo;</p>
         <div className="month-nav">
           <button onClick={() => changeMonth(-1)} aria-label="เดือนก่อนหน้า"><ChevronLeft size={20} /></button>
           <button className="today-button" onClick={() => setViewDate(new Date())}>เดือนนี้</button>
