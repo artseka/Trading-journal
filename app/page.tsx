@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   CalendarDays,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -81,6 +82,7 @@ const monthNames = [
   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
 ];
 const weekdays = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+const tradingSymbols = ["XAUUSD", "JPYUSD", "BTCUSD", "GBPUSD", "EURUSD"];
 const dailyQuotes = [
   "วินัยสำคัญกว่าโชค ทำตามแผน ไม่ตามอารมณ์",
   "ขาดทุนคือค่าเรียน กำไรคือรางวัลของความอดทน",
@@ -189,8 +191,19 @@ export default function TradingJournal() {
   const [showForm, setShowForm] = useState(false);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
+  const [pairListOpen, setPairListOpen] = useState(false);
   const turnstileContainerRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetIdRef = useRef<string | null>(null);
+  const pairFieldRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!pairListOpen) return;
+    const closeOnOutside = (event: PointerEvent) => {
+      if (!pairFieldRef.current?.contains(event.target as Node)) setPairListOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutside);
+    return () => document.removeEventListener("pointerdown", closeOnOutside);
+  }, [pairListOpen]);
 
   useEffect(() => {
     if (authStatus !== "unauthenticated" || !turnstileReady || !TURNSTILE_SITE_KEY || !window.turnstile || !turnstileContainerRef.current) return;
@@ -364,6 +377,7 @@ export default function TradingJournal() {
     setEditingId(null);
     setShowForm(false);
     setDraft(emptyDraft);
+    setPairListOpen(false);
   };
 
   const saveTrade = async (event: FormEvent) => {
@@ -895,14 +909,36 @@ export default function TradingJournal() {
               <form className="trade-form" onSubmit={saveTrade}>
                 <div className="field full">
                   <label>คู่เงิน / สินทรัพย์ <sup>*</sup></label>
-                  <input autoFocus required list="trading-symbols" value={draft.pair} onChange={(e) => setDraft({ ...draft, pair: e.target.value })} placeholder="พิมพ์หรือเลือกคู่เงิน" />
-                  <datalist id="trading-symbols">
-                    <option value="XAUUSD" />
-                    <option value="JPYUSD" />
-                    <option value="BTCUSD" />
-                    <option value="GBPUSD" />
-                    <option value="EURUSD" />
-                  </datalist>
+                  <div className={`pair-picker${pairListOpen ? " open" : ""}`} ref={pairFieldRef}>
+                    <input
+                      autoFocus
+                      required
+                      value={draft.pair}
+                      onChange={(e) => { setDraft({ ...draft, pair: e.target.value }); setPairListOpen(true); }}
+                      onFocus={() => setPairListOpen(true)}
+                      placeholder="พิมพ์หรือเลือกคู่เงิน"
+                      autoComplete="off"
+                      role="combobox"
+                      aria-expanded={pairListOpen}
+                      aria-controls="trading-symbols"
+                    />
+                    <button type="button" className="pair-toggle" onClick={() => setPairListOpen((open) => !open)} aria-label="เลือกคู่เงิน" tabIndex={-1}>
+                      <ChevronDown size={16} />
+                    </button>
+                    {pairListOpen && (
+                      <ul className="pair-options" id="trading-symbols" role="listbox">
+                        {tradingSymbols
+                          .filter((symbol) => symbol.toLowerCase().includes(draft.pair.trim().toLowerCase()))
+                          .map((symbol) => (
+                            <li key={symbol}>
+                              <button type="button" role="option" aria-selected={draft.pair.toUpperCase() === symbol} onClick={() => { setDraft({ ...draft, pair: symbol }); setPairListOpen(false); }}>
+                                {symbol}
+                              </button>
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
                 <div className="field">
                   <label>ประเภท</label>
